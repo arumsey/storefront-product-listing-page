@@ -24,6 +24,7 @@ import {
 import Resize from './context/displayChange';
 import Translation from './context/translation';
 import { validateStoreDetailsKeys } from './utils/validateStoreDetails';
+import { CategoriesProvider } from "./context/categories";
 
 type MountSearchPlpProps = {
   storeDetails: StoreDetailsProps;
@@ -51,17 +52,19 @@ const LiveSearchPLP = ({ storeDetails, root }: MountSearchPlpProps) => {
   render(
     <StoreContextProvider {...validateStoreDetailsKeys(updatedStoreDetails)}>
       <AttributeMetadataProvider>
-        <SearchProvider>
-          <Resize>
-            <Translation>
-              <ProductsContextProvider>
-                <CartProvider>
-                  <App />
-                </CartProvider>
-              </ProductsContextProvider>
-            </Translation>
-          </Resize>
-        </SearchProvider>
+        <CategoriesProvider>
+          <SearchProvider>
+            <Resize>
+              <Translation>
+                <ProductsContextProvider>
+                  <CartProvider>
+                    <App />
+                  </CartProvider>
+                </ProductsContextProvider>
+              </Translation>
+            </Resize>
+          </SearchProvider>
+        </CategoriesProvider>
       </AttributeMetadataProvider>
     </StoreContextProvider>,
     root

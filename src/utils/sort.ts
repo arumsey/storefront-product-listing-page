@@ -9,6 +9,7 @@ it.
 
 import { Language } from '../context/translation';
 import { GQLSortInput, SortMetadata, SortOption } from '../types/interface';
+import { OptionalArray } from "../types/utils";
 
 const defaultSortOptions = (): SortOption[] => {
   return [
@@ -18,13 +19,13 @@ const defaultSortOptions = (): SortOption[] => {
   ];
 };
 
-const getSortOptionsfromMetadata = (
+const getSortOptionsFromMetadata = (
   translation: Language,
   sortMetadata: SortMetadata[],
   displayOutOfStock?: string | boolean,
-  categoryPath?: string
+  categoryPath?: OptionalArray<string>
 ): SortOption[] => {
-  const sortOptions = categoryPath
+  const sortOptions = categoryPath && !Array.isArray(categoryPath)
     ? [
         {
           label: translation.SortDropdown.positionLabel,
@@ -90,4 +91,4 @@ const generateGQLSortInput = (
   ];
 };
 
-export { defaultSortOptions, generateGQLSortInput, getSortOptionsfromMetadata };
+export { defaultSortOptions, generateGQLSortInput, getSortOptionsFromMetadata };

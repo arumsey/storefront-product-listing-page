@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-  <title>Live Search PLP</title>
+  <title>Sony Biotech Storefront</title>
 
   <!-- reset css -->
 
@@ -52,31 +52,32 @@
   <script type="text/javascript">
     const root = document.querySelector('div.search-plp-root');
     const storeDetails = {
-      environmentId: '',
-      websiteCode: '',
-      storeCode: '',
-      storeViewCode: '',
+      environmentId: '9f4deb06-1119-403b-ad4d-4f72d32d311e',
+      websiteCode: 'us',
+      storeCode: 'main_website_store',
+      storeViewCode: 'us',
+      apiKey: 'c239b4de01ed4e72bfbaba2620b15547',
       config: {
-        minQueryLength: '2',
         pageSize: 8,
         perPageConfig: {
-          pageSizeOptions: '12,24,36',
-          defaultPageSizeOption: '24',
+          pageSizeOptions: '10,20,50,100',
+          defaultPageSizeOption: '10',
         },
+        minQueryLength: '0',
         currencySymbol: '$',
         currencyRate: '1',
         displaySearchBox: true, // display search box
         displayOutOfStock: true,
         allowAllProducts: false,
-        // currentCategoryUrlPath?: '', // current category url path
+        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents/anti-human-antibodies',
         // categoryName: '', // name of category to display
         // displaySearchBox: false, // display search box
         // displayOutOfStock: '', // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
-        // displayMode: '', // "" for search || "PAGE" for category search
+        displayMode: 'PAGE', // "" for search || "PAGE" for category search
         // locale: '', //add locale for translations
         // priceSlider: false, //enable slider for price - EXPERIMENTAL, default is false
         // imageCarousel: false, //enable multiple image carousel - EXPERIMENTAL, default is false
-        // listview: false; //add listview as an option - EXPERIMENTAL, default is false
+        listview: true, //add listview as an option - EXPERIMENTAL, default is false
         // optimizeImages: true, // optimize images with Fastly
         // imageBaseWidth: 200,
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension
@@ -84,22 +85,10 @@
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action
       },
       context: {
-        customerGroup: '',
+        customerGroup: '0',
       },
-      apiKey: '',
       environmentType: '',
       // searchQuery: 'search_query', // Optional: providing searchQuery will override 'q' query param
-      // route: ({ sku, urlKey  }) => {
-      //   const storeConfig = JSON.parse(
-      //     document
-      //       .querySelector("meta[name='store-config']")
-      //       .getAttribute('content')
-      //   );
-      //   const { storeRootUrl } = storeConfig;
-      //   const redirectUrl = storeRootUrl.split('.html')[0];
-      //   return `${redirectUrl}/${sku}`;
-      // },
-      // Will result to `http://localhost:8081/v1/MT11`
     };
 
     const mse = window.magentoStorefrontEvents;

@@ -12,6 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { updateSearchInputCtx, updateSearchResultsCtx } from '../context';
 import {
   AttributeMetadataResponse,
+  CategoriesQuery,
+  CategoriesResponse,
   ClientProps,
   MagentoHeaders,
   ProductSearchQuery,
@@ -21,7 +23,7 @@ import {
 } from '../types/interface';
 import { SEARCH_UNIT_ID } from '../utils/constants';
 import {
-  ATTRIBUTE_METADATA_QUERY,
+  ATTRIBUTE_METADATA_QUERY, CATEGORIES_QUERY,
   PRODUCT_SEARCH_QUERY,
   REFINE_PRODUCT_QUERY,
 } from './queries';
@@ -181,6 +183,47 @@ const getAttributeMetadata = async ({
   return results?.data;
 };
 
+const getCategories = async ({
+  environmentId,
+  websiteCode,
+  storeCode,
+  storeViewCode,
+  apiKey,
+  apiUrl,
+  xRequestId = uuidv4(),
+  ids,
+  roles,
+  subtree
+}: CategoriesQuery & ClientProps): Promise<CategoriesResponse['data']> => {
+
+  const headers = getHeaders({
+    environmentId,
+    websiteCode,
+    storeCode,
+    storeViewCode,
+    apiKey,
+    xRequestId,
+    customerGroup: '',
+  });
+
+  const variables = {
+    ids,
+    roles,
+    subtree,
+  };
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      query: CATEGORIES_QUERY,
+      variables: { ...variables }
+    }),
+  });
+  const results = await response.json();
+  return results?.data;
+};
+
 const refineProductSearch = async ({
   environmentId,
   websiteCode,
@@ -220,4 +263,4 @@ const refineProductSearch = async ({
   return results?.data;
 };
 
-export { getAttributeMetadata, getProductSearch, refineProductSearch };
+export { getAttributeMetadata, getProductSearch, refineProductSearch, getCategories };

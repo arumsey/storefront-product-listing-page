@@ -35,7 +35,7 @@ export interface StoreDetailsConfig {
   pageSize?: number;
   currencySymbol?: string;
   currencyRate?: string;
-  currentCategoryUrlPath?: string;
+  currentCategoryUrlPath?: string | string[];
   categoryName?: string;
   displaySearchBox?: boolean;
   displayOutOfStock?: string | boolean; // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
@@ -91,6 +91,15 @@ export interface ProductSearchQuery {
   context?: QueryContextInput;
   data?: QueryData;
   categorySearch?: boolean;
+}
+
+export interface CategoriesQuery {
+  ids: string[];
+  roles?: string[];
+  subtree?: {
+    startLevel: number;
+    depth: number;
+  }
 }
 
 export interface RefineProductQuery {
@@ -165,6 +174,20 @@ export interface AttributeMetadataResponse {
       filterableInSearch: AttributeMetadata[];
     };
   };
+}
+
+export interface CategoriesResponse {
+  data: {
+    categories: Category[];
+  };
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  path: string;
+  urlPath: string;
+  children: string[];
 }
 
 export interface Product {

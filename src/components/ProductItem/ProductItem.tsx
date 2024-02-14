@@ -134,9 +134,10 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   };
 
-  const productUrl = setRoute
+  let productUrl = setRoute
     ? setRoute({ sku: productView?.sku, urlKey: productView?.urlKey })
     : product?.canonical_url;
+  productUrl = productUrl?.replace('//stagingv2', 'http://www') || null;
 
   const handleAddToCart = async () => {
     setError(false);

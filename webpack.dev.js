@@ -12,14 +12,14 @@ module.exports = merge(commonConfig, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      API_URL: JSON.stringify('https://catalog-service.adobe.io/graphql'),
+      API_URL: JSON.stringify('https://aemstage.sonybiotechnology.com/cs-graphql'),
       TEST_URL: JSON.stringify(
         'https://catalog-service-sandbox.adobe.io/graphql'
       ),
       SANDBOX_KEY: JSON.stringify('storefront-widgets'),
     }),
     new HtmlWebpackPlugin({
-      title: 'LiveSearch PLP',
+      title: 'Sony Biotech Storefront',
       template: './dev-template.html',
     }),
     new webpack.HotModuleReplacementPlugin(),

@@ -26,6 +26,20 @@ const ATTRIBUTE_METADATA_QUERY = `
     }
 `;
 
+export const CATEGORIES_QUERY = `query categories($ids: [String!], $roles: [String!], $subtree: Subtree) {
+  categories(
+    ids: $ids,
+    roles: $roles,
+    subtree: $subtree
+  ) {
+    id
+    name
+    path
+    urlPath
+    children
+  }
+}`;
+
 const QUICK_SEARCH_QUERY = `
     query quickSearch(
         $phrase: String!

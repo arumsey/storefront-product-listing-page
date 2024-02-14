@@ -19,6 +19,7 @@ import {
   ProductSearchQuery,
   RedirectRouteFunc,
 } from '../types/interface';
+import { OptionalArray, WithChildrenProps } from "../types/utils";
 import {
   CATEGORY_SORT_DEFAULT,
   DEFAULT_MIN_QUERY_LENGTH,
@@ -36,10 +37,7 @@ import { useAttributeMetadata } from './attributeMetadata';
 import { useSearch } from './search';
 import { useStore } from './store';
 import { useTranslation } from './translation';
-
-interface WithChildrenProps {
-  children?: any;
-}
+import { useCategories } from "./categories";
 
 const ProductsContext = createContext<{
   variables: ProductSearchQuery;
@@ -130,6 +128,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const searchCtx = useSearch();
   const storeCtx = useStore();
   const attributeMetadataCtx = useAttributeMetadata();
+  const { findCategoryByPath, buildCategoryList } = useCategories();
 
   const pageSizeValue = getValueFromUrl('page_size');
   const defaultPageSizeOption =
@@ -166,11 +165,18 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const minQueryLength = useMemo(() => {
     return storeCtx?.config?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
   }, [storeCtx?.config.minQueryLength]);
-  const categoryPath = storeCtx.config?.currentCategoryUrlPath;
+  let categoryPath = storeCtx.config?.currentCategoryUrlPath;
+  const firstCategoryPath = Array.isArray(categoryPath) ? categoryPath[0] : categoryPath;
+  if (typeof categoryPath === 'string') {
+    const startCategory = findCategoryByPath(categoryPath);
+    if (startCategory) {
+      categoryPath = buildCategoryList(startCategory.id).map((cat) => cat.urlPath);
+    }
+  }
 
   const viewTypeFromUrl = getValueFromUrl('view_type');
   const [viewType, setViewType] = useState<string>(
-    viewTypeFromUrl ? viewTypeFromUrl : 'gridView'
+    viewTypeFromUrl ? viewTypeFromUrl : 'listview'
   );
   const [listViewType, setListViewType] = useState<string>('default');
 
@@ -231,7 +237,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     refineProduct: handleRefineProductSearch,
     pageLoading,
     setPageLoading,
-    categoryPath,
+    categoryPath: firstCategoryPath,
     viewType,
     setViewType,
     listViewType,
@@ -331,20 +337,33 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   };
 
   const handleCategorySearch = (
-    categoryPath: string | undefined,
+    categoryPath: OptionalArray<string> | undefined,
     filters: FacetFilter[]
   ) => {
     if (categoryPath) {
       //add category filter
-      const categoryFilter = {
-        attribute: 'categoryPath',
-        eq: categoryPath,
-      };
-      filters.push(categoryFilter);
+      if (Array.isArray(categoryPath)) {
+        if (categoryPath.length === 1) {
+          filters.push({
+            attribute: 'categoryPath',
+            eq: categoryPath[0],
+          });
+        } else {
+          filters.push({
+            attribute: 'categoryPath',
+            in: categoryPath,
+          });
+        }
+      } else {
+        filters.push({
+          attribute: 'categoryPath',
+          eq: categoryPath,
+        });
 
-      //add default category sort
-      if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
-        variables.sort = CATEGORY_SORT_DEFAULT;
+        //add default category sort
+        if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
+          variables.sort = CATEGORY_SORT_DEFAULT;
+        }
       }
     }
   };
@@ -395,8 +414,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 };
 
 const useProducts = () => {
-  const productsCtx = useContext(ProductsContext);
-  return productsCtx;
+  return useContext(ProductsContext);
 };
 
 export { ProductsContextProvider, useProducts };

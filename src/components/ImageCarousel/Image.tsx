@@ -28,6 +28,9 @@ export const Image = ({
     }
   }, [entry, carouselIndex, index, image]);
 
+  let imageSrc = typeof image === 'object' ? image.src : image;
+  imageSrc = imageSrc.replace('//stagingv2', 'www');
+
   return (
     <img
       className={`aspect-auto w-100 h-auto ${
@@ -35,7 +38,7 @@ export const Image = ({
       }`}
       ref={imageRef}
       src={imageUrl}
-      data-src={typeof image === 'object' ? image.src : image}
+      data-src={imageSrc}
       srcset={typeof image === 'object' ? image.srcset : null}
       alt={alt}
     />

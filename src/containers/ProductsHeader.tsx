@@ -27,7 +27,7 @@ import { getValueFromUrl, handleUrlSort } from '../utils/handleUrlFilters';
 import {
   defaultSortOptions,
   generateGQLSortInput,
-  getSortOptionsfromMetadata,
+  getSortOptionsFromMetadata,
 } from '../utils/sort';
 
 interface Props {
@@ -58,7 +58,7 @@ export const ProductsHeader: FunctionComponent<Props> = ({
 
   const getSortOptions = useCallback(() => {
     setSortOptions(
-      getSortOptionsfromMetadata(
+      getSortOptionsFromMetadata(
         translation,
         attributeMetadata?.sortable,
         storeCtx?.config?.displayOutOfStock,

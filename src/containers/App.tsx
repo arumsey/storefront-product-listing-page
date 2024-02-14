@@ -9,12 +9,12 @@ it.
 
 import { FunctionComponent } from 'preact';
 import { useState } from 'preact/hooks';
-import FilterButton from 'src/components/FilterButton';
-import Loading from 'src/components/Loading';
-import Shimmer from 'src/components/Shimmer';
 
 import { CategoryFilters } from '../components/CategoryFilters';
 import { SelectedFilters } from '../components/Facets';
+import FilterButton from '../components/FilterButton';
+import Loading from '../components/Loading';
+import Shimmer from '../components/Shimmer';
 import {
   useProducts,
   useSearch,
@@ -48,7 +48,7 @@ export const App: FunctionComponent = () => {
 
   return (
     <>
-      {!(displayMode === 'PAGE') &&
+      {!(displayMode !== 'PAGE') &&
         (!screenSize.mobile && showFilters && productsCtx.facets.length > 0 ? (
           <div className="ds-widgets bg-body py-2">
             <div className="flex">
