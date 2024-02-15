@@ -11,38 +11,47 @@ import { render } from 'preact';
 
 import './styles/index.css';
 
-import { getUserViewHistory } from '../src/utils/getUserViewHistory';
 import App from './containers/App';
 import {
   AttributeMetadataProvider,
   CartProvider,
+  CategoriesProvider,
   ProductsContextProvider,
   SearchProvider,
   StoreContextProvider,
-  StoreDetailsProps,
+  StoreProps,
 } from './context/';
 import Resize from './context/displayChange';
 import Translation from './context/translation';
+import { StoreDetailsConfig } from "./types/interface";
+import { getUserViewHistory } from './utils/getUserViewHistory';
 import { validateStoreDetailsKeys } from './utils/validateStoreDetails';
-import { CategoriesProvider } from "./context/categories";
+
+type OptionalHeaderViews = Omit<StoreDetailsConfig, 'headerViews'> & Pick<Partial<StoreDetailsConfig>, 'headerViews'>;
+
+export type StoreConfig = Omit<StoreProps, 'config'> & { config: OptionalHeaderViews };
 
 type MountSearchPlpProps = {
-  storeDetails: StoreDetailsProps;
+  storeDetails: StoreConfig;
   root: HTMLElement;
 };
 
 const LiveSearchPLP = ({ storeDetails, root }: MountSearchPlpProps) => {
   if (!storeDetails) {
-    throw new Error("Livesearch PLP's storeDetails prop was not provided");
+    throw new Error("LiveSearch PLP's storeDetails prop was not provided");
   }
   if (!root) {
-    throw new Error("Livesearch PLP's Root prop was not provided");
+    throw new Error("LiveSearch PLP's root prop was not provided");
   }
 
   const userViewHistory = getUserViewHistory();
 
-  const updatedStoreDetails: StoreDetailsProps = {
+  const updatedStoreDetails: StoreProps = {
     ...storeDetails,
+    config: {
+      headerViews: ['search', 'sort'],
+      ...storeDetails.config,
+    },
     context: {
       ...storeDetails.context,
       userViewHistory,

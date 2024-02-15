@@ -42,14 +42,15 @@ export const App: FunctionComponent = () => {
   }
   const getResults = (totalCount: number) => {
     const resultsTranslation = translation.CategoryFilters.products;
-    const results = resultsTranslation.replace('{totalCount}', `${totalCount}`);
-    return results;
+    return resultsTranslation.replace('{totalCount}', `${totalCount}`);
   };
+
+  const renderFilterView = !screenSize.mobile && showFilters && productsCtx.facets.length > 0;
 
   return (
     <>
-      {!(displayMode !== 'PAGE') &&
-        (!screenSize.mobile && showFilters && productsCtx.facets.length > 0 ? (
+      {displayMode !== 'PAGE' &&
+        (renderFilterView ? (
           <div className="ds-widgets bg-body py-2">
             <div className="flex">
               <CategoryFilters
@@ -74,7 +75,6 @@ export const App: FunctionComponent = () => {
                   screenSize={screenSize}
                 />
                 <SelectedFilters />
-
                 <ProductsContainer showFilters={showFilters} />
               </div>
             </div>

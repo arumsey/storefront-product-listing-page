@@ -25,7 +25,9 @@
 </head>
 
 <body>
-  <div class="search-plp-root"></div>
+  <div class="search-plp-root">
+    Hello
+  </div>
 
   <style>
     body {
@@ -58,7 +60,7 @@
       storeViewCode: 'us',
       apiKey: 'c239b4de01ed4e72bfbaba2620b15547',
       config: {
-        pageSize: 8,
+        pageSize: 10,
         perPageConfig: {
           pageSizeOptions: '10,20,50,100',
           defaultPageSizeOption: '10',
@@ -66,18 +68,18 @@
         minQueryLength: '0',
         currencySymbol: '$',
         currencyRate: '1',
-        displaySearchBox: true, // display search box
         displayOutOfStock: true,
         allowAllProducts: false,
         currentCategoryUrlPath: 'reagents/flow-cytometry-reagents/anti-human-antibodies',
         // categoryName: '', // name of category to display
-        // displaySearchBox: false, // display search box
+        headerViews: [],
+        displaySearchBox: false, // display search box
         // displayOutOfStock: '', // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
-        displayMode: 'PAGE', // "" for search || "PAGE" for category search
+        displayMode: '', // "" for search || "PAGE" for category search
         // locale: '', //add locale for translations
         // priceSlider: false, //enable slider for price - EXPERIMENTAL, default is false
         // imageCarousel: false, //enable multiple image carousel - EXPERIMENTAL, default is false
-        listview: true, //add listview as an option - EXPERIMENTAL, default is false
+        listView: true, //add listview as an option - EXPERIMENTAL, default is false
         // optimizeImages: true, // optimize images with Fastly
         // imageBaseWidth: 200,
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension

@@ -1,6 +1,6 @@
-import { StoreDetailsProps } from '../context';
+import { StoreProps } from '../context';
 
-const validStoreDetailsKeys: Array<keyof StoreDetailsProps> = [
+const validStoreDetailsKeys: Array<keyof StoreProps> = [
   'environmentId',
   'environmentType',
   'websiteCode',
@@ -25,12 +25,12 @@ export const sanitizeString = (value: any) => {
 };
 
 export const validateStoreDetailsKeys = (
-  storeDetails: StoreDetailsProps
-): StoreDetailsProps => {
+  storeDetails: StoreProps
+): StoreProps => {
   Object.keys(storeDetails).forEach((key: string) => {
-    if (!validStoreDetailsKeys.includes(key as keyof StoreDetailsProps)) {
+    if (!validStoreDetailsKeys.includes(key as keyof StoreProps)) {
       // eslint-disable-next-line no-console
-      console.error(`Invalid key ${key} in StoreDetailsProps`);
+      console.error(`Invalid key ${key} in StoreProps`);
       // filter out invalid keys/value
       delete (storeDetails as any)[key];
       return;

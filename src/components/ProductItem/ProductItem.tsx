@@ -69,7 +69,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const { addToCartGraphQL, refreshCart } = useCart();
   const { viewType } = useProducts();
   const {
-    config: { optimizeImages, imageBaseWidth, imageCarousel, listview },
+    config: { optimizeImages, imageBaseWidth, imageCarousel, listView },
   } = useStore();
 
   const { screenSize } = useSensor();
@@ -166,7 +166,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     }
   };
 
-  if (listview && viewType === 'listview') {
+  if (listView && viewType === 'listview') {
     return (
       <>
         <div className="grid-container">

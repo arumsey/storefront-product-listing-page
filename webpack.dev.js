@@ -13,7 +13,7 @@ module.exports = merge(commonConfig, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      API_URL: JSON.stringify('https://aemstage.sonybiotechnology.com/cs-graphql'),
+      API_URL: JSON.stringify('https://catalog-service.adobe.io/graphql'),
       TEST_URL: JSON.stringify(
         'https://catalog-service-sandbox.adobe.io/graphql'
       ),

@@ -37,13 +37,14 @@ export interface StoreDetailsConfig {
   currencyRate?: string;
   currentCategoryUrlPath?: string | string[];
   categoryName?: string;
+  headerViews: Array<'search' | 'switch' | 'sort'>;
   displaySearchBox?: boolean;
   displayOutOfStock?: string | boolean; // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
   displayMode?: string;
   locale?: string;
   priceSlider?: boolean;
   imageCarousel?: boolean;
-  listview?: boolean;
+  listView?: boolean;
   optimizeImages?: boolean;
   imageBaseWidth?: number;
   resolveCartId?: () => Promise<string | undefined>;

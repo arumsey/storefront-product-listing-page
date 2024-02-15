@@ -8,13 +8,14 @@ it.
 */
 
 import { createContext, FunctionComponent } from 'preact';
-import { useContext, useEffect, useState, useCallback } from 'preact/hooks';
+import { useCallback,useContext, useEffect, useState } from 'preact/hooks';
+
 import { getCategories } from '../api/search';
-import { useStore } from './store';
 import { Category } from "../types/interface";
 import { isDefined } from "../utils/isDefined";
+import { useStore } from './store';
 
-export interface CategoriesProps {
+interface CategoriesProps {
   categories: Category[];
 }
 
@@ -88,4 +89,4 @@ const useCategories = () => {
   }
 };
 
-export { CategoriesProvider, useCategories };
+export { CategoriesProvider, useCategories, CategoriesProps };

@@ -17,7 +17,7 @@ import {
   ProductsContextProvider,
   SearchProvider,
   StoreContextProvider,
-  StoreDetailsProps,
+  StoreProps,
 } from '../context';
 import Resize from '../context/displayChange';
 import Translation from '../context/translation';
@@ -25,7 +25,7 @@ import { getUserViewHistory } from '../utils/getUserViewHistory';
 import App from './App';
 
 type MountSearchPlpProps = {
-  storeDetails: StoreDetailsProps;
+  storeDetails: StoreProps;
   root: HTMLElement;
 };
 // TODO: this file is not being used currently

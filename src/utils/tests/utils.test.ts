@@ -1,4 +1,4 @@
-import { StoreDetailsProps } from '../../context';
+import { StoreProps } from '../../context';
 import {
   sanitizeString,
   validateStoreDetailsKeys,
@@ -60,7 +60,7 @@ describe('test validating storeDetails.', () => {
       apiKey: 'storefront-catalog-apollo',
       apiUrl: '',
       environmentType: '',
-    } as StoreDetailsProps;
+    } as StoreProps;
     const expectedStoreDetails = JSON.parse(JSON.stringify(storeDetails));
 
     expect(validateStoreDetailsKeys(storeDetails)).toEqual(
@@ -74,6 +74,7 @@ describe('test validating storeDetails.', () => {
       storeCode: 'main_website_store',
       storeViewCode: 'default',
       config: {
+        headerViews: [],
         minQueryLength: '2',
         pageSize: 8,
         perPageConfig: {
@@ -95,13 +96,15 @@ describe('test validating storeDetails.', () => {
       apiUrl: '',
       environmentType: '',
       shouldGetRemoved: 'should not belong here',
-    } as StoreDetailsProps;
+    } as StoreProps;
+
     const expectedStoreDetails = {
       environmentId: '22500baf-135e-4b8f-8f18-14276de7d356',
       websiteCode: 'base',
       storeCode: 'main_website_store',
       storeViewCode: 'default',
       config: {
+        headerViews: [],
         minQueryLength: '2',
         pageSize: 8,
         perPageConfig: {
@@ -122,7 +125,7 @@ describe('test validating storeDetails.', () => {
       apiKey: 'storefront-catalog-apollo',
       apiUrl: '',
       environmentType: '',
-    } as StoreDetailsProps;
+    } as StoreProps;
 
     expect(validateStoreDetailsKeys(invalidStoreDetails)).toEqual(
       expectedStoreDetails

@@ -13,7 +13,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import './product-list.css';
 
-import { Alert } from '../../components/Alert';
+import { Alert } from '../Alert';
 import { useProducts, useStore } from '../../context';
 import { Product } from '../../types/interface';
 import { classNames } from '../../utils/dom';
@@ -44,7 +44,7 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
   const { viewType } = useProducts();
   const [error, setError] = useState<boolean>(false);
   const {
-    config: { listview },
+    config: { listView },
   } = useStore();
 
   const className = showFilters
@@ -83,7 +83,7 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
         </div>
       )}
 
-      {listview && viewType === 'listview' ? (
+      {listView && viewType === 'listview' ? (
         <div className="w-full">
           <div className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-[10px]">
             {products?.map((product) => (
