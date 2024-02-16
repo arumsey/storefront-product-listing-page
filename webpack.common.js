@@ -77,6 +77,10 @@ const commonConfig = {
         test: /\.svg$/,
         use: ['preact-svg-loader'],
       },
+      {
+        test: /\.(png)$/i,
+        use: [{ loader: 'file-loader' }],
+      },
     ],
   },
   resolve: {

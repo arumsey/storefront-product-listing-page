@@ -91,8 +91,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   };
 
   const isSelected = (id: string) => {
-    const selected = selectedSwatch ? selectedSwatch === id : false;
-    return selected;
+    return selectedSwatch ? selectedSwatch === id : false;
   };
 
   const productImageArray = imagesFromRefinedProduct
@@ -102,8 +101,8 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
         imageCarousel ? 3 : 1, // number of images to display in carousel
         product.image?.url ?? undefined
       );
-  let optimizedImageArray: { src: string; srcset: any }[] = [];
 
+  let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
     optimizedImageArray = generateOptimizedImages(
       productImageArray,
@@ -120,6 +119,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
         product?.price_range?.minimum_price?.final_price?.value ||
       productView?.price?.regular?.amount?.value >
         productView?.price?.final?.amount?.value;
+
   const isSimple = product?.__typename === 'SimpleProduct';
   const isComplexProductView = productView?.__typename === 'ComplexProductView';
   const isBundle = product?.__typename === 'BundleProduct';
@@ -138,6 +138,8 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     ? setRoute({ sku: productView?.sku, urlKey: productView?.urlKey })
     : product?.canonical_url;
   productUrl = productUrl?.replace('//stagingv2', 'http://www') || null;
+
+  const productSize = productView?.attributes?.find((attr) => attr.name === 'size');
 
   const handleAddToCart = async () => {
     setError(false);
@@ -197,41 +199,26 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
               )}
             </a>
           </div>
-          <div className="product-details">
-            <div className="flex flex-col w-1/3">
-              {/* Product name */}
+          <div className="product-name">
               <a
                 href={productUrl as string}
                 onClick={onProductClick}
                 className="!text-primary hover:no-underline hover:text-primary"
               >
                 <div className="ds-sdk-product-item__product-name mt-xs text-sm text-primary">
-                  {product.name !== null && htmlStringDecode(product.name)}
-                </div>
-                <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
-                  SKU:
-                  {product.sku !== null && htmlStringDecode(product.sku)}
+                  {productView.name !== null && htmlStringDecode(productView.name)}
                 </div>
               </a>
-
-              {/* Swatch */}
-              <div className="ds-sdk-product-item__product-swatch flex flex-row mt-sm text-sm text-primary pb-6">
-                {productView?.options?.map(
-                  (swatches) =>
-                    swatches.id === 'color' && (
-                      <SwatchButtonGroup
-                        key={productView?.sku}
-                        isSelected={isSelected}
-                        swatches={swatches.values ?? []}
-                        showMore={onProductClick}
-                        productUrl={productUrl as string}
-                        onClick={handleSelection}
-                        sku={productView?.sku}
-                      />
-                    )
-                )}
-              </div>
+          </div>
+          <div className="product-size">
+            <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
+              {productSize && htmlStringDecode(productSize.value)}
             </div>
+          </div>
+          <div className="product-sku">
+              <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
+                {productView.sku !== null && htmlStringDecode(productView.sku)}
+              </div>
           </div>
           <div className="product-price">
             <a
@@ -252,30 +239,8 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
               />
             </a>
           </div>
-          <div className="product-description text-sm text-primary mt-xs">
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              {product.short_description?.html ? (
-                <>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: product.short_description.html,
-                    }}
-                  />
-                </>
-              ) : (
-                <span />
-              )}
-            </a>
-          </div>
-
-          {/* TO BE ADDED LATER */}
-          <div className="product-ratings" />
           <div className="product-add-to-cart">
-            <div className="pb-4 h-[38px] w-96">
+            <div className="pb-4 h-[38px]">
               <AddToCartButton onClick={handleAddToCart} />
             </div>
           </div>

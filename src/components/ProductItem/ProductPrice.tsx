@@ -42,7 +42,9 @@ export const ProductPrice: FunctionComponent<ProductPriceProps> = ({
 
   if ('product' in item) {
     price =
+      item?.productView?.price?.final ??
       item?.product?.price_range?.minimum_price?.final_price ??
+      item?.productView?.price?.regular ??
       item?.product?.price_range?.minimum_price?.regular_price;
   } else {
     price =

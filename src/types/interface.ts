@@ -194,45 +194,31 @@ export interface Category {
 export interface Product {
   product: {
     __typename: string;
-    id: number;
-    uid: string;
     name: string;
     sku: string;
     description: null | ComplexTextValue;
     short_description: null | ComplexTextValue;
-    attribute_set_id: null | number;
-    meta_title: null | string;
-    meta_keyword: null | string;
-    meta_description: null | string;
     image: null | ProductMedia;
     small_image: null | ProductMedia;
     thumbnail: null | ProductMedia;
-    new_from_date: null | string;
-    new_to_date: null | string;
-    created_at: null | string;
-    updated_at: null | string;
     price_range: {
       minimum_price: ProductPrice;
       maximum_price: ProductPrice;
     };
-    gift_message_available: null | string;
     canonical_url: null | string;
-    media_gallery: null | ProductMedia;
-    custom_attributes: null | CustomAttribute;
-    add_to_cart_allowed: null | boolean;
   };
   productView: {
     __typename: string;
     id: number;
-    uid: string;
     name: string;
     sku: string;
     description: null | ComplexTextValue;
     short_description: null | ComplexTextValue;
-    attribute_set_id: null | number;
-    meta_title: null | string;
-    meta_keyword: null | string;
-    meta_description: null | string;
+    attributes: Array<{
+      label: string;
+      name: string;
+      value: string;
+    }> | null;
     images: null | ProductViewMedia[];
     new_from_date: null | string;
     new_to_date: null | string;

@@ -9,7 +9,7 @@ it.
 
 import { FunctionComponent } from 'preact';
 
-import CartIcon from '../../icons/cart.svg';
+import cartIcon from '../../icons/blue_cart.png';
 
 export interface AddToCartButtonProps {
   onClick: (e: any) => any;
@@ -20,14 +20,11 @@ export const AddToCartButton: FunctionComponent<AddToCartButtonProps> = ({
   return (
     <div className="ds-sdk-add-to-cart-button">
       <button
-        className="flex items-center justify-center text-white text-sm rounded-full h-[32px] w-full p-sm"
-        style={{
-          'background-color': `#464646`,
-        }}
+        className="flex items-center justify-center text-blue text-sm h-[32px] p-sm hover:border-gray-400"
         onClick={onClick}
+        aria-label="Add to cart"
       >
-        <CartIcon className="w-[24px] pr-4" />
-        Add To Cart
+        <img src={cartIcon} alt="Add to Cart"/>
       </button>
     </div>
   );

@@ -93,9 +93,6 @@ const PRODUCT_SEARCH_QUERY = `
                 ...Product
                 ...ProductView
             }
-            facets {
-                ...Facet
-            }
             page_info {
                 current_page
                 page_size
@@ -112,7 +109,6 @@ const PRODUCT_SEARCH_QUERY = `
     }
     ${Product}
     ${ProductView}
-    ${Facet}
 `;
 
 const REFINE_PRODUCT_QUERY = `

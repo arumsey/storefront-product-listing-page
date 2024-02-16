@@ -8,23 +8,23 @@ it.
 */
 
 import { ProductViewMedia } from '../types/interface';
+import { isDefined } from "./isDefined";
 
 const getProductImageURLs = (
   images: ProductViewMedia[],
   amount: number = 3,
   topImageUrl?: string
 ): string[] => {
-  const imageUrlArray: Array<string> = [];
   const url = new URL(window.location.href);
   const protocol = url.protocol;
 
-  // const topImageUrl = "http://master-7rqtwti-wdxwuaerh4gbm.eu-4.magentosite.cloud/media/catalog/product/3/1/31t0a-sopll._ac_.jpg";
-  for (const image of images) {
-    const imageUrl = image.url?.replace(/^https?:\/\//, '');
-    if (imageUrl) {
-      imageUrlArray.push(`${protocol}//${imageUrl}`);
-    }
-  }
+  // map images to full URLs
+  const imageUrlArray: string[] = images
+    .map((image) => {
+      const imageUrl = image.url?.replace(/^https?:\/\//, '');
+      return imageUrl ? `${protocol}//${imageUrl}` : undefined;
+    })
+    .filter((url): url is string => isDefined<string>(url));
 
   if (topImageUrl) {
     const topImageUrlFormatted = `${protocol}//${topImageUrl.replace(

@@ -39,9 +39,9 @@ const ProductView = `
     fragment ProductView on ProductSearchItem {
         productView {
             __typename
+            id
             sku
             name
-            inStock
             url
             urlKey
             images {
@@ -95,13 +95,12 @@ const ProductView = `
                 }
             }
             ... on SimpleProductView {
+                attributes(roles: "visible_in_plp") {
+                  label
+                  name
+                  value
+                }
                 price {
-                    final {
-                        amount {
-                            value
-                            currency
-                        }
-                    }
                     regular {
                         amount {
                             value
@@ -124,18 +123,12 @@ const Product = `
         product {
             __typename
             sku
-            description {
-                html
-            }
-            short_description{
-                html
-            }
             name
             canonical_url
-            small_image {
+            image {
                 url
             }
-            image {
+            small_image {
                 url
             }
             thumbnail {
