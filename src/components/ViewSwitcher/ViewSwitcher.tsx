@@ -7,7 +7,7 @@ it.
 */
 
 import { FunctionComponent } from 'preact';
-import { useProducts } from 'src/context';
+import { useProducts, ViewType } from 'src/context';
 import { handleViewType } from 'src/utils/handleUrlFilters';
 
 import GridView from '../../icons/gridView.svg';
@@ -16,7 +16,7 @@ import ListView from '../../icons/listView.svg';
 export const ViewSwitcher: FunctionComponent = () => {
   const { viewType, setViewType } = useProducts();
 
-  const handleClick = (viewType: string): void => {
+  const handleClick = (viewType: ViewType): void => {
     handleViewType(viewType);
     setViewType(viewType);
   };

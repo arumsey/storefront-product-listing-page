@@ -45,6 +45,7 @@ export const ProductsContainer: FunctionComponent<Props> = ({
     minQueryLengthReached,
     pageSizeOptions,
     loading,
+    categoryPath,
   } = productsCtx;
 
   useEffect(() => {
@@ -134,22 +135,24 @@ export const ProductsContainer: FunctionComponent<Props> = ({
           showFilters={showFilters}
         />
       )}
-      <div
-        className={`flex flex-row justify-between max-w-full ${
-          showFilters ? 'mx-auto' : 'mr-auto'
-        } w-full h-full`}
-      >
-        <div>
-          {getPageSizeTranslation(pageSize, pageSizeOptions, PerPagePicker)}
+      {!categoryPath && (
+        <div
+          className={`flex flex-row justify-between max-w-full ${
+            showFilters ? 'mx-auto' : 'mr-auto'
+          } w-full h-full`}
+        >
+          <div>
+            {getPageSizeTranslation(pageSize, pageSizeOptions, PerPagePicker)}
+          </div>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
+          )}
         </div>
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-          />
-        )}
-      </div>
+      )}
     </>
   );
 };

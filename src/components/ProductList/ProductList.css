@@ -1,0 +1,35 @@
+
+.grid-container {
+  display: grid;
+  gap: 1px;
+  height: auto;
+  grid-template-columns: auto 2fr 1fr 1fr 1fr 50px;
+  padding: 10px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.grid-container > span {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.grid-container > span::after {
+  content: '';
+  position: absolute;
+  background-color: #000;
+  z-index: 1;
+  inline-size: 100vw;
+  block-size: 1px;
+  inset-inline-start: 0;
+  inset-block-start: calc(100% + 8px);
+}
+
+.grid-container .grid-header {
+
+}
+
+.grid-container .grid-item {
+
+}
+

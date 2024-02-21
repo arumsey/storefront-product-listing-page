@@ -49,6 +49,7 @@ module.exports = {
         black: 'var(--font-black)',
       },
       fontSize: {
+        xxs: ['var(--font-xxs)', { lineHeight: 'var(--leading-none)' }],
         xs: ['var(--font-xs)', { lineHeight: 'var(--leading-none)' }],
         sm: ['var(--font-sm)', { lineHeight: 'var(--leading-tight)' }],
         base: ['var(--font-md)', { lineHeight: 'var(--leading-snug)' }],

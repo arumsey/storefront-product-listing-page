@@ -171,7 +171,6 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   if (listView && viewType === 'listview') {
     return (
       <>
-        <div className="grid-container">
           <div
             className={`product-image ds-sdk-product-item__image relative rounded-md overflow-hidden}`}
           >
@@ -203,48 +202,41 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
               <a
                 href={productUrl as string}
                 onClick={onProductClick}
-                className="!text-primary hover:no-underline hover:text-primary"
+                className="no-underline hover:no-underline"
               >
-                <div className="ds-sdk-product-item__product-name mt-xs text-sm text-primary">
+                <div className="ds-sdk-product-item__product-name mt-xs text-sm text-blue-700">
                   {productView.name !== null && htmlStringDecode(productView.name)}
                 </div>
               </a>
           </div>
           <div className="product-size">
-            <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
+            <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
               {productSize && htmlStringDecode(productSize.value)}
             </div>
           </div>
           <div className="product-sku">
-              <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
+              <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
                 {productView.sku !== null && htmlStringDecode(productView.sku)}
               </div>
           </div>
           <div className="product-price">
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              <ProductPrice
-                item={refinedProduct ?? item}
-                isBundle={isBundle}
-                isGrouped={isGrouped}
-                isGiftCard={isGiftCard}
-                isConfigurable={isConfigurable}
-                isComplexProductView={isComplexProductView}
-                discount={discount}
-                currencySymbol={currencySymbol}
-                currencyRate={currencyRate}
-              />
-            </a>
+            <ProductPrice
+              item={refinedProduct ?? item}
+              isBundle={isBundle}
+              isGrouped={isGrouped}
+              isGiftCard={isGiftCard}
+              isConfigurable={isConfigurable}
+              isComplexProductView={isComplexProductView}
+              discount={discount}
+              currencySymbol={currencySymbol}
+              currencyRate={currencyRate}
+            />
           </div>
           <div className="product-add-to-cart">
             <div className="pb-4 h-[38px]">
               <AddToCartButton onClick={handleAddToCart} />
             </div>
           </div>
-        </div>
       </>
     );
   }

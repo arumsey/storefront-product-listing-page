@@ -11,7 +11,7 @@ import { FunctionComponent } from 'preact';
 import { HTMLAttributes } from 'preact/compat';
 import { useEffect, useState } from 'preact/hooks';
 
-import './product-list.css';
+import './ProductList.css';
 
 import { Alert } from '../Alert';
 import { useProducts, useStore } from '../../context';
@@ -24,6 +24,12 @@ export interface ProductListProps extends HTMLAttributes<HTMLDivElement> {
   numberOfColumns: number;
   showFilters: boolean;
 }
+
+const typeNames = [
+  'Antibodies Single',
+  'Secondary Antibody',
+  '2nd Step (non-Ab)',
+];
 
 export const ProductList: FunctionComponent<ProductListProps> = ({
   products,
@@ -38,6 +44,7 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
     refineProduct,
     refreshCart,
     addToCart,
+    totalCount,
   } = productsCtx;
   const [cartUpdated, setCartUpdated] = useState(false);
   const [itemAdded, setItemAdded] = useState('');
@@ -53,7 +60,7 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
 
   useEffect(() => {
     refreshCart && refreshCart();
-  }, [itemAdded]);
+  }, [itemAdded, refreshCart]);
 
   return (
     <div
@@ -83,26 +90,46 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
         </div>
       )}
 
-      {listView && viewType === 'listview' ? (
+      {listView && viewType === 'listview' && (
         <div className="w-full">
-          <div className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-[10px]">
-            {products?.map((product) => (
-              <ProductItem
-                item={product}
-                setError={setError}
-                key={product?.productView?.id}
-                currencySymbol={currencySymbol}
-                currencyRate={currencyRate}
-                setRoute={setRoute}
-                refineProduct={refineProduct}
-                setCartUpdated={setCartUpdated}
-                setItemAdded={setItemAdded}
-                addToCart={addToCart}
-              />
-            ))}
-          </div>
+          {typeNames.map((productType) => {
+            const typeId = '16146';
+            const viewMoreUrl = new URL(window.location.href);
+            viewMoreUrl.searchParams.set('sonybt_product_type', typeId);
+            return (
+              <div key={productType} className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-[10px]">
+                <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px]">
+                  <h2 className='inline-flex'>{productType}</h2>
+                  <p className='text-xxs'>{`(3 of ${totalCount})`}</p>
+                  <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>
+                </div>
+                <div className="grid-container">
+                  <span className="grid-header">Description</span>
+                  <span className="grid-header invisible">Name</span>
+                  <span className="grid-header">Size</span>
+                  <span className="grid-header">Cat. No.</span>
+                  <span className="grid-header">Price</span>
+                  <span className="grid-header invisible">Add to cart</span>
+                {products?.slice(0, 3).map((product) => (
+                  <ProductItem
+                    item={product}
+                    setError={setError}
+                    key={product?.productView?.id}
+                    currencySymbol={currencySymbol}
+                    currencyRate={currencyRate}
+                    setRoute={setRoute}
+                    refineProduct={refineProduct}
+                    setCartUpdated={setCartUpdated}
+                    setItemAdded={setItemAdded}
+                    addToCart={addToCart}
+                  />
+              ))}
+              </div>
+            </div>
+          )})}
         </div>
-      ) : (
+      )}
+      {viewType !== 'listview' && (
         <div
           style={{
             gridTemplateColumns: `repeat(${numberOfColumns}, minmax(0, 1fr))`,

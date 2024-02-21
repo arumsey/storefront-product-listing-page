@@ -1,39 +1,9 @@
-.grid-container {
-  display: grid;
-  gap: 1px;
-  height: auto;
-  grid-template-columns: auto 1fr 1fr;
-  border-top: 2px solid #e5e7eb;
-  padding: 10px;
-  grid-template-areas:
-    'product-image product-name product-size product-sku product-price product-add-to-cart';
-  align-items: center;
-}
-
 .product-image {
-  grid-area: product-image;
   width: fit-content;
 }
 
 .product-name {
   white-space: nowrap;
-  grid-area: product-name;
   text-decoration: underline;
-}
-
-.product-size {
-  grid-area: product-size;
-}
-
-.product-sku {
-  grid-area: product-sku;
-}
-
-.product-price {
-  grid-area: product-price;
-}
-
-.product-add-to-cart {
-  grid-area: product-add-to-cart;
 }
 

@@ -39,6 +39,8 @@ import { useStore } from './store';
 import { useTranslation } from './translation';
 import { useCategories } from "./categories";
 
+export type ViewType = 'gridview' | 'listview' | '';
+
 const ProductsContext = createContext<{
   variables: ProductSearchQuery;
   loading: boolean;
@@ -69,8 +71,8 @@ const ProductsContext = createContext<{
   pageLoading: boolean;
   setPageLoading: (loading: boolean) => void;
   categoryPath: string | undefined;
-  viewType: string;
-  setViewType: (viewType: string) => void;
+  viewType: ViewType;
+  setViewType: (viewType: ViewType) => void;
   listViewType: string;
   setListViewType: (viewType: string) => void;
   resolveCartId?: () => Promise<string | undefined>;
@@ -174,10 +176,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     }
   }
 
-  const viewTypeFromUrl = getValueFromUrl('view_type');
-  const [viewType, setViewType] = useState<string>(
-    viewTypeFromUrl ? viewTypeFromUrl : 'listview'
-  );
+  const [viewType, setViewType] = useState<ViewType>('listview');
   const [listViewType, setListViewType] = useState<string>('default');
 
   const variables = useMemo(() => {
@@ -204,11 +203,10 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     optionIds: string[],
     sku: string
   ) => {
-    const data = await refineProductSearch({ ...storeCtx, optionIds, sku });
-    return data;
+    return  await refineProductSearch({ ...storeCtx, optionIds, sku });
   };
 
-  const context = {
+  const context= {
     variables,
     loading,
     items,

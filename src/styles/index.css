@@ -658,6 +658,9 @@ video {
   .h-\[38px\] {
     height: 38px;
   }
+  .h-\[50px\] {
+    height: 50px;
+  }
   .h-auto {
     height: auto;
   }
@@ -718,9 +721,6 @@ video {
   }
   .min-w-\[32px\] {
     min-width: 32px;
-  }
-  .max-w-2xl {
-    max-width: 42rem;
   }
   .max-w-5xl {
     max-width: 64rem;
@@ -827,6 +827,9 @@ video {
   .justify-between {
     justify-content: space-between;
   }
+  .gap-1 {
+    gap: 0.25rem;
+  }
   .gap-\[10px\] {
     gap: 10px;
   }
@@ -872,6 +875,9 @@ video {
   }
   .whitespace-nowrap {
     white-space: nowrap;
+  }
+  .rounded {
+    border-radius: 0.25rem;
   }
   .rounded-full {
     border-radius: 9999px;
@@ -930,6 +936,9 @@ video {
     --tw-bg-opacity: 1;
     background-color: rgb(240 253 244 / var(--tw-bg-opacity));
   }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
   .bg-red-50 {
     --tw-bg-opacity: 1;
     background-color: rgb(254 242 242 / var(--tw-bg-opacity));
@@ -982,6 +991,12 @@ video {
   }
   .p-4 {
     padding: 1rem;
+  }
+  .p-\[4px\] {
+    padding: 4px;
+  }
+  .p-\[6px\] {
+    padding: 6px;
   }
   .p-sm {
     padding: var(--spacing-sm);
@@ -1100,6 +1115,10 @@ video {
     font-size: var(--font-xs);
     line-height: var(--leading-none);
   }
+  .text-xxs {
+    font-size: var(--font-xxs);
+    line-height: var(--leading-none);
+  }
   .font-light {
     font-weight: var(--font-light);
   }
@@ -1179,6 +1198,10 @@ video {
   }
   .text-secondary {
     color: var(--color-secondary);
+  }
+  .text-white {
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity));
   }
   .text-yellow-400 {
     --tw-text-opacity: 1;
@@ -1272,9 +1295,9 @@ video {
   --color-on-body: #222;
   --color-surface: #e6e6e6;
   --color-on-surface: #222;
-  --color-primary: #222;
+  --color-primary: #006bb4;
   --color-on-primary: #fff;
-  --color-secondary: #ff0000;
+  --color-secondary: #1B824F;
   --color-on-secondary: #fff;
   --color-gray-1: #f3f4f6;
   --color-gray-2: #e5e7eb;
@@ -1297,6 +1320,7 @@ video {
   /* Font Families */
   --font-body: sans-serif;
   /* Font Sizes */
+  --font-xxs: 11px;
   --font-xs: 0.75em;
   --font-sm: 0.875em;
   --font-md: 1em;
