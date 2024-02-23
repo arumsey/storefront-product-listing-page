@@ -9,11 +9,12 @@ it.
 
 import { FunctionComponent } from 'preact';
 
-import cartIcon from '../../icons/blue_cart.png';
+import CartIcon from '../../icons/cart.svg';
 
 export interface AddToCartButtonProps {
-  onClick: (e: any) => any;
+  onClick: (e: MouseEvent) => void;
 }
+
 export const AddToCartButton: FunctionComponent<AddToCartButtonProps> = ({
   onClick,
 }: AddToCartButtonProps) => {
@@ -24,7 +25,7 @@ export const AddToCartButton: FunctionComponent<AddToCartButtonProps> = ({
         onClick={onClick}
         aria-label="Add to cart"
       >
-        <img src={cartIcon} alt="Add to Cart"/>
+        <CartIcon className="w-[20px]" />
       </button>
     </div>
   );
