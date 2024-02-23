@@ -13,7 +13,7 @@ import { isDefined } from "./isDefined";
 const getProductImageURLs = (
   images: ProductViewMedia[],
   amount: number = 3,
-  topImageUrl?: string
+  topImageUrl?: string,
 ): string[] => {
   const url = new URL(window.location.href);
   const protocol = url.protocol;

@@ -14,7 +14,7 @@ export const Image = ({
   index: number;
 }) => {
   const imageRef = useRef<HTMLImageElement>(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageSrc, setImageSrc] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const entry = useIntersectionObserver(imageRef, { rootMargin: '200px' });
 
@@ -23,13 +23,11 @@ export const Image = ({
 
     if (entry?.isIntersecting && index === carouselIndex) {
       setIsVisible(true);
-
-      setImageUrl((entry?.target as HTMLElement)?.dataset.src || '');
+      setImageSrc((entry?.target as HTMLElement)?.dataset.src || '');
     }
   }, [entry, carouselIndex, index, image]);
 
-  let imageSrc = typeof image === 'object' ? image.src : image;
-  imageSrc = imageSrc.replace('//stagingv2', 'www');
+  const imageUrl = typeof image === 'object' ? image.src : image;
 
   return (
     <img
@@ -37,8 +35,8 @@ export const Image = ({
         isVisible ? 'visible' : 'invisible'
       }`}
       ref={imageRef}
-      src={imageUrl}
-      data-src={imageSrc}
+      src={imageSrc}
+      data-src={imageUrl}
       srcset={typeof image === 'object' ? image.srcset : null}
       alt={alt}
     />

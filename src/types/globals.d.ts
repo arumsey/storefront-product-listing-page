@@ -23,4 +23,5 @@ declare global {
   const TEST_URL: string;
   const API_KEY: string;
   const SANDBOX_KEY: string;
+  const MEDIA_HOST: string;
 }

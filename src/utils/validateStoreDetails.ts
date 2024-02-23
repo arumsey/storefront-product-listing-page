@@ -10,6 +10,7 @@ const validStoreDetailsKeys: Array<keyof StoreProps> = [
   'context',
   'apiUrl',
   'apiKey',
+  'mediaHost',
   'route',
   'searchQuery',
 ];

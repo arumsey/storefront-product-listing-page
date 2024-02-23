@@ -27,6 +27,7 @@ interface StoreProps extends WithChildrenProps {
   context?: QueryContextInput;
   apiUrl: string;
   apiKey: string;
+  mediaHost: string;
   route?: RedirectRouteFunc; // optional product redirect func prop
   searchQuery?: string; // 'q' default search query param if not provided.
 }
@@ -39,6 +40,7 @@ const StoreContext = createContext<StoreProps>({
   storeViewCode: '',
   apiUrl: '',
   apiKey: '',
+  mediaHost: '',
   config: {
     headerViews: ['search', 'sort'],
   },
@@ -64,6 +66,7 @@ const StoreContextProvider = ({
         config,
         context,
         apiKey,
+        mediaHost,
         route,
         searchQuery,
       } = storeProps;
@@ -84,6 +87,7 @@ const StoreContextProvider = ({
           environmentType?.toLowerCase() === 'testing' && !apiKey
             ? SANDBOX_KEY
             : apiKey,
+        mediaHost: mediaHost ? mediaHost : MEDIA_HOST,
         route,
         searchQuery,
       }

@@ -69,6 +69,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const { addToCartGraphQL, refreshCart } = useCart();
   const { viewType } = useProducts();
   const {
+    mediaHost,
     config: { optimizeImages, imageBaseWidth, imageCarousel, listView },
   } = useStore();
 
@@ -94,13 +95,16 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     return selectedSwatch ? selectedSwatch === id : false;
   };
 
-  const productImageArray = imagesFromRefinedProduct
+  const productImageArray = (imagesFromRefinedProduct
     ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1)
     : getProductImageURLs(
         productView.images ?? [],
         imageCarousel ? 3 : 1, // number of images to display in carousel
         product.image?.url ?? undefined
-      );
+      )).map((image) => {
+        const imageUrl = new URL(image);
+        return `${mediaHost}${imageUrl.pathname}`;
+  });
 
   let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
@@ -134,10 +138,9 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   };
 
-  let productUrl = setRoute
+  const productUrl = setRoute
     ? setRoute({ sku: productView?.sku, urlKey: productView?.urlKey })
     : product?.canonical_url;
-  productUrl = productUrl?.replace('//stagingv2', 'http://www') || null;
 
   const productSize = productView?.attributes?.find((attr) => attr.name === 'size');
 
