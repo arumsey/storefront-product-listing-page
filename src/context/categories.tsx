@@ -10,7 +10,7 @@ it.
 import { createContext, FunctionComponent } from 'preact';
 import { useCallback,useContext, useEffect, useState } from 'preact/hooks';
 
-import { getCategories } from '../api/search';
+import { fetchCategories } from '../api/search';
 import { Category } from "../types/interface";
 import { isDefined } from "../utils/isDefined";
 import { useStore } from './store';
@@ -33,7 +33,7 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getCategories({
+      const data = await fetchCategories({
         ...storeCtx,
         apiUrl: storeCtx.apiUrl,
         ids: ['3'],

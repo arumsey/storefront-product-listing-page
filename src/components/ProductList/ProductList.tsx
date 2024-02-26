@@ -14,27 +14,20 @@ import { useEffect, useState } from 'preact/hooks';
 import './ProductList.css';
 
 import { Alert } from '../Alert';
-import { useProducts, useStore } from '../../context';
-import { Product } from '../../types/interface';
+import { isGroupedProducts, useProducts, useStore } from '../../context';
+import { GroupedProducts, Product } from '../../types/interface';
 import { classNames } from '../../utils/dom';
 import ProductItem from '../ProductItem';
 
 export interface ProductListProps extends HTMLAttributes<HTMLDivElement> {
-  products: Array<Product> | null | undefined;
-  numberOfColumns: number;
+  products: Array<Product> | GroupedProducts | null | undefined;
   showFilters: boolean;
 }
 
-const typeNames = [
-  'Antibodies Single',
-  'Secondary Antibody',
-  '2nd Step (non-Ab)',
-];
-
 export const ProductList: FunctionComponent<ProductListProps> = ({
   products,
-  numberOfColumns,
   showFilters,
+  ...otherProps
 }) => {
   const productsCtx = useProducts();
   const {
@@ -62,8 +55,17 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
     refreshCart && refreshCart();
   }, [itemAdded, refreshCart]);
 
-  return (
+  // Determine group name header
+  const groupNames: string[] = [];
+  if (isGroupedProducts(products)) {
+    groupNames.push(...Object.keys(products));
+  } else {
+    groupNames.push('Unknown product type');
+  }
+
+    return (
     <div
+      {...otherProps}
       className={classNames(
         'ds-sdk-product-list bg-body pb-2xl sm:pb-24',
         className
@@ -92,64 +94,52 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
 
       {listView && viewType === 'listview' && (
         <div className="w-full">
-          {typeNames.map((productType) => {
+          {groupNames.map((groupName) => {
             const typeId = '16146';
             const viewMoreUrl = new URL(window.location.href);
             viewMoreUrl.searchParams.set('sonybt_product_type', typeId);
+            let groupProducts: Product[] = [];
+            if (isGroupedProducts(products)) {
+              groupProducts = products[groupName] || [];
+            } else {
+              groupProducts = products || [];
+            }
             return (
-              <div key={productType} className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-[10px]">
+              <div key={groupName} className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-0">
                 <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px]">
-                  <h2 className='inline-flex'>{productType}</h2>
+                  <h2 className='inline-flex leading-loose'>{groupName}</h2>
                   <p className='text-xxs'>{`(3 of ${totalCount})`}</p>
-                  <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>
+                  {groupNames.length > 1 && <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>}
                 </div>
-                <div className="grid-container">
-                  <span className="grid-header">Description</span>
-                  <span className="grid-header invisible">Name</span>
-                  <span className="grid-header">Size</span>
-                  <span className="grid-header">Cat. No.</span>
-                  <span className="grid-header">Price</span>
-                  <span className="grid-header invisible">Add to cart</span>
-                {products?.slice(0, 3).map((product) => (
-                  <ProductItem
-                    item={product}
-                    setError={setError}
-                    key={product?.productView?.id}
-                    currencySymbol={currencySymbol}
-                    currencyRate={currencyRate}
-                    setRoute={setRoute}
-                    refineProduct={refineProduct}
-                    setCartUpdated={setCartUpdated}
-                    setItemAdded={setItemAdded}
-                    addToCart={addToCart}
-                  />
-              ))}
-              </div>
+                <table className="grid-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Size</th>
+                      <th>Cat. No.</th>
+                      <th>Price</th>
+                      <th>&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupProducts.map((product) => (
+                      <ProductItem
+                        item={product}
+                        setError={setError}
+                        key={product?.productView?.id}
+                        currencySymbol={currencySymbol}
+                        currencyRate={currencyRate}
+                        setRoute={setRoute}
+                        refineProduct={refineProduct}
+                        setCartUpdated={setCartUpdated}
+                        setItemAdded={setItemAdded}
+                        addToCart={addToCart}
+                      />
+                    ))}
+                  </tbody>
+              </table>
             </div>
           )})}
-        </div>
-      )}
-      {viewType !== 'listview' && (
-        <div
-          style={{
-            gridTemplateColumns: `repeat(${numberOfColumns}, minmax(0, 1fr))`,
-          }}
-          className="ds-sdk-product-list__grid mt-md grid gap-y-8 gap-x-2xl xl:gap-x-8"
-        >
-          {products?.map((product) => (
-            <ProductItem
-              item={product}
-              setError={setError}
-              key={product?.productView?.id}
-              currencySymbol={currencySymbol}
-              currencyRate={currencyRate}
-              setRoute={setRoute}
-              refineProduct={refineProduct}
-              setCartUpdated={setCartUpdated}
-              setItemAdded={setItemAdded}
-              addToCart={addToCart}
-            />
-          ))}
         </div>
       )}
     </div>

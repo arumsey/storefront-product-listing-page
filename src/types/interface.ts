@@ -37,14 +37,15 @@ export interface StoreDetailsConfig {
   currencyRate?: string;
   currentCategoryUrlPath?: string | string[];
   categoryName?: string;
+  groupConfig?: { groupBy: string; size: number; };
   headerViews: Array<'search' | 'switch' | 'sort'>;
   displaySearchBox?: boolean;
   displayOutOfStock?: string | boolean; // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
   displayMode?: string;
+  listView?: boolean;
   locale?: string;
   priceSlider?: boolean;
   imageCarousel?: boolean;
-  listView?: boolean;
   optimizeImages?: boolean;
   imageBaseWidth?: number;
   resolveCartId?: () => Promise<string | undefined>;
@@ -254,6 +255,8 @@ export interface Product {
   };
   highlights: Array<Highlights>;
 }
+
+export type GroupedProducts = Record<string, Product[]>;
 
 export interface RefinedProduct {
   refineProduct: {

@@ -10,7 +10,7 @@ it.
 import { FunctionalComponent, FunctionComponent } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { ProductCardShimmer } from '../components/ProductCardShimmer';
-import { useProducts, useSensor, useTranslation } from '../context';
+import { isGroupedProducts, useProducts, useSensor, useTranslation } from '../context';
 import { PageSizeOption } from '../types/interface';
 import {
   handleUrlPageSize,
@@ -130,11 +130,10 @@ export const ProductsContainer: FunctionComponent<Props> = ({
       ) : (
         <ProductList
           products={items}
-          numberOfColumns={screenSize.columns}
           showFilters={showFilters}
         />
       )}
-      {!categoryPath && (
+      {!isGroupedProducts(items) && (
         <div
           className={`flex flex-row justify-between max-w-full ${
             showFilters ? 'mx-auto' : 'mr-auto'

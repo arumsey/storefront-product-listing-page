@@ -10,7 +10,7 @@ it.
 import { createContext, FunctionComponent } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
 
-import { getAttributeMetadata } from '../api/search';
+import { fetchAttributeMetadata } from '../api/search';
 import { AttributeMetadata } from '../types/interface';
 import { useStore } from './store';
 
@@ -39,7 +39,7 @@ const AttributeMetadataProvider: FunctionComponent = ({ children }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAttributeMetadata({
+      const data = await fetchAttributeMetadata({
         ...storeCtx,
         apiUrl: storeCtx.apiUrl,
       });
@@ -68,8 +68,7 @@ const AttributeMetadataProvider: FunctionComponent = ({ children }) => {
 };
 
 const useAttributeMetadata = () => {
-  const attributeMetadataCtx = useContext(AttributeMetadataContext);
-  return attributeMetadataCtx;
+  return useContext(AttributeMetadataContext);
 };
 
 export { AttributeMetadataProvider, useAttributeMetadata };

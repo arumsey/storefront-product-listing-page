@@ -41,7 +41,7 @@ const getHeaders = (headers: MagentoHeaders) => {
   };
 };
 
-const getProductSearch = async ({
+const fetchProductSearch = async ({
   environmentId,
   websiteCode,
   storeCode,
@@ -60,6 +60,7 @@ const getProductSearch = async ({
 }: ProductSearchQuery & ClientProps): Promise<
   ProductSearchResponse['data']
 > => {
+
   const variables = {
     phrase,
     pageSize,
@@ -153,7 +154,7 @@ const getProductSearch = async ({
   return results?.data;
 };
 
-const getAttributeMetadata = async ({
+const fetchAttributeMetadata = async ({
   environmentId,
   websiteCode,
   storeCode,
@@ -183,7 +184,7 @@ const getAttributeMetadata = async ({
   return results?.data;
 };
 
-const getCategories = async ({
+const fetchCategories = async ({
   environmentId,
   websiteCode,
   storeCode,
@@ -263,4 +264,4 @@ const refineProductSearch = async ({
   return results?.data;
 };
 
-export { getAttributeMetadata, getProductSearch, refineProductSearch, getCategories };
+export { fetchAttributeMetadata, fetchProductSearch, refineProductSearch, fetchCategories };

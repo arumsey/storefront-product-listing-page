@@ -77,7 +77,6 @@ module.exports = {
         10: 'var(--leading-10)',
       },
     },
-
     plugins: [],
   },
 };

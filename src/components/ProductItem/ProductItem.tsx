@@ -173,56 +173,52 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
 
   if (listView && viewType === 'listview') {
     return (
-      <>
-          <div
-            className={`product-image ds-sdk-product-item__image relative rounded-md overflow-hidden}`}
-          >
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              {/* Image */}
-              {productImageArray.length ? (
-                <ImageCarousel
-                  images={
-                    optimizedImageArray.length
-                      ? optimizedImageArray
-                      : productImageArray
-                  }
-                  productName={product.name}
-                  carouselIndex={carouselIndex}
-                  setCarouselIndex={setCarouselIndex}
-                />
-              ) : (
-                <NoImage
-                  className={`max-h-[250px] max-w-[200px] pr-5 m-auto object-cover object-center lg:w-full`}
-                />
-              )}
-            </a>
-          </div>
-          <div className="product-name">
+      <tr>
+          <td>
+            <div className="flex flex-row gap-[10px] items-center">
               <a
                 href={productUrl as string}
                 onClick={onProductClick}
-                className="no-underline hover:no-underline"
+                className="!text-primary hover:no-underline hover:text-primary w-[50px]"
               >
-                <div className="ds-sdk-product-item__product-name mt-xs text-sm text-blue-700">
-                  {productView.name !== null && htmlStringDecode(productView.name)}
-                </div>
+                {/* Image */}
+                {productImageArray.length ? (
+                  <ImageCarousel
+                    images={
+                      optimizedImageArray.length
+                        ? optimizedImageArray
+                        : productImageArray
+                    }
+                    productName={product.name}
+                    carouselIndex={carouselIndex}
+                    setCarouselIndex={setCarouselIndex}
+                  />
+                ) : (
+                  <NoImage
+                    className={`max-h-[250px] max-w-[200px] pr-5 m-auto object-cover object-center lg:w-full`}
+                  />
+                )}
               </a>
-          </div>
-          <div className="product-size">
+              <a
+                href={productUrl as string}
+                onClick={onProductClick}
+                className="text-sm text-blue-700 no-underline hover:no-underline text-wrap"
+              >
+                {productView.name !== null && htmlStringDecode(productView.name)}
+              </a>
+            </div>
+          </td>
+          <td>
             <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
               {productSize && htmlStringDecode(productSize.value)}
             </div>
-          </div>
-          <div className="product-sku">
+          </td>
+          <td>
               <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
                 {productView.sku !== null && htmlStringDecode(productView.sku)}
               </div>
-          </div>
-          <div className="product-price">
+          </td>
+          <td>
             <ProductPrice
               item={refinedProduct ?? item}
               isBundle={isBundle}
@@ -234,13 +230,13 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
               currencySymbol={currencySymbol}
               currencyRate={currencyRate}
             />
-          </div>
-          <div className="product-add-to-cart">
-            <div className="pb-4 h-[38px]">
+          </td>
+          <td>
+            <div className="w-[50px] h-[38px]">
               <AddToCartButton onClick={handleAddToCart} />
             </div>
-          </div>
-      </>
+          </td>
+      </tr>
     );
   }
 

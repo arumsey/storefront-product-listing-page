@@ -157,8 +157,7 @@ const SearchProvider: FunctionComponent = ({ children }) => {
 };
 
 const useSearch = () => {
-  const searchCtx = useContext(SearchContext);
-  return searchCtx;
+  return useContext(SearchContext);
 };
 
 export { SearchProvider, useSearch };

@@ -10,13 +10,13 @@ it.
 import { createContext } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 
-import { getProductSearch, refineProductSearch } from '../api/search';
+import { fetchProductSearch, refineProductSearch } from '../api/search';
 import {
   Facet,
-  FacetFilter,
+  FacetFilter, GroupedProducts,
   PageSizeOption,
   Product,
-  ProductSearchQuery,
+  ProductSearchQuery, ProductSearchResponse,
   RedirectRouteFunc,
 } from '../types/interface';
 import { OptionalArray, WithChildrenProps } from "../types/utils";
@@ -38,14 +38,16 @@ import { useSearch } from './search';
 import { useStore } from './store';
 import { useTranslation } from './translation';
 import { useCategories } from "./categories";
+import { sonyGroupMap } from "../api/groups";
+import { getProductAttribute } from "../utils/getProductAttribute";
 
 export type ViewType = 'gridview' | 'listview' | '';
 
-const ProductsContext = createContext<{
+type ProductsContextType = {
   variables: ProductSearchQuery;
   loading: boolean;
-  items: Product[];
-  setItems: (items: Product[]) => void;
+  items: Product[] | GroupedProducts;
+  setItems: (items: Product[] | GroupedProducts) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   pageSize: number;
@@ -82,7 +84,10 @@ const ProductsContext = createContext<{
     options: [],
     quantity: number
   ) => Promise<void | undefined>;
-}>({
+  cartId?: () => Promise<string | undefined>;
+}
+
+const ProductsContext = createContext<ProductsContextType>({
   variables: {
     phrase: '',
   },
@@ -128,13 +133,13 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const pageDefault = urlValue ? Number(urlValue) : 1;
 
   const searchCtx = useSearch();
-  const storeCtx = useStore();
+  const { config: storeConfig, ...storeCtx} = useStore();
   const attributeMetadataCtx = useAttributeMetadata();
   const { findCategoryByPath, buildCategoryList } = useCategories();
 
   const pageSizeValue = getValueFromUrl('page_size');
   const defaultPageSizeOption =
-    Number(storeCtx?.config?.perPageConfig?.defaultPageSizeOption) ||
+    Number(storeConfig?.perPageConfig?.defaultPageSizeOption) ||
     DEFAULT_PAGE_SIZE;
   const pageSizeDefault = pageSizeValue
     ? Number(pageSizeValue)
@@ -146,28 +151,29 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(true);
-  const [items, setItems] = useState<Product[]>([]);
+  const [items, setItems] = useState<Product[] | GroupedProducts>([]);
   const [currentPage, setCurrentPage] = useState<number>(pageDefault);
   const [pageSize, setPageSize] = useState<number>(pageSizeDefault);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [facets, setFacets] = useState<Facet[]>([]);
   const [categoryName, setCategoryName] = useState<string>(
-    storeCtx?.config?.categoryName ?? ''
+    storeConfig?.categoryName ?? ''
   );
   const [pageSizeOptions, setPageSizeOptions] = useState<PageSizeOption[]>([]);
   const [currencySymbol, setCurrencySymbol] = useState<string>(
-    storeCtx?.config?.currencySymbol ?? ''
+    storeConfig?.currencySymbol ?? ''
   );
   const [currencyRate, setCurrencyRate] = useState<string>(
-    storeCtx?.config?.currencyRate ?? ''
+    storeConfig?.currencyRate ?? ''
   );
   const [minQueryLengthReached, setMinQueryLengthReached] =
     useState<boolean>(false);
   const minQueryLength = useMemo(() => {
-    return storeCtx?.config?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
-  }, [storeCtx?.config.minQueryLength]);
-  let categoryPath = storeCtx.config?.currentCategoryUrlPath;
+    return storeConfig?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
+  }, [storeConfig.minQueryLength]);
+
+  let categoryPath = storeConfig?.currentCategoryUrlPath;
   const firstCategoryPath = Array.isArray(categoryPath) ? categoryPath[0] : categoryPath;
   if (typeof categoryPath === 'string') {
     const startCategory = findCategoryByPath(categoryPath);
@@ -186,7 +192,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       sort: searchCtx.sort,
       context: storeCtx.context,
       pageSize,
-      displayOutOfStock: storeCtx.config.displayOutOfStock,
+      displayOutOfStock: storeConfig?.displayOutOfStock,
       currentPage,
     };
   }, [
@@ -194,7 +200,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     searchCtx.filters,
     searchCtx.sort,
     storeCtx.context,
-    storeCtx.config.displayOutOfStock,
+    storeConfig.displayOutOfStock,
     pageSize,
     currentPage,
   ]);
@@ -206,79 +212,87 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     return  await refineProductSearch({ ...storeCtx, optionIds, sku });
   };
 
-  const context= {
-    variables,
-    loading,
-    items,
-    setItems,
-    currentPage,
-    setCurrentPage,
-    pageSize,
-    setPageSize,
-    totalCount,
-    setTotalCount,
-    totalPages,
-    setTotalPages,
-    facets,
-    setFacets,
-    categoryName,
-    setCategoryName,
-    currencySymbol,
-    setCurrencySymbol,
-    currencyRate,
-    setCurrencyRate,
-    minQueryLength,
-    minQueryLengthReached,
-    setMinQueryLengthReached,
-    pageSizeOptions,
-    setRoute: storeCtx.route,
-    refineProduct: handleRefineProductSearch,
-    pageLoading,
-    setPageLoading,
-    categoryPath: firstCategoryPath,
-    viewType,
-    setViewType,
-    listViewType,
-    setListViewType,
-    cartId: storeCtx.config.resolveCartId,
-    refreshCart: storeCtx.config.refreshCart,
-    resolveCartId: storeCtx.config.resolveCartId,
-    addToCart: storeCtx.config.addToCart,
-  };
-
   const searchProducts = async () => {
+    if (!checkMinQueryLength()) {
+      setLoading(false);
+      setPageLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       moveToTop();
-      if (checkMinQueryLength()) {
-        const filters = [...variables.filter];
 
-        handleCategorySearch(categoryPath, filters);
+      const categoryFilters = getCategorySearchFilters(categoryPath);
+      const filters = [...variables.filter, ...categoryFilters];
 
-        const data = await getProductSearch({
+      if (!Array.isArray(categoryPath)) {
+        //add default category sort
+        if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
+          variables.sort = CATEGORY_SORT_DEFAULT;
+        }
+      }
+
+      const groupByItem = storeConfig.groupConfig?.groupBy ? sonyGroupMap[storeConfig.groupConfig?.groupBy] : undefined;
+      const searchRequests: Array<ReturnType<typeof fetchProductSearch>> = [];
+      
+      if (!groupByItem) {
+        searchRequests.push(fetchProductSearch({
           ...variables,
           ...storeCtx,
           apiUrl: storeCtx.apiUrl,
           filter: filters,
           categorySearch: !!categoryPath,
-        });
-
-        setItems(data?.productSearch?.items || []);
-        setFacets(data?.productSearch?.facets || []);
-        setTotalCount(data?.productSearch?.total_count || 0);
-        setTotalPages(data?.productSearch?.page_info?.total_pages || 1);
-        handleCategoryNames(data?.productSearch?.facets || []);
-
-        getPageSizeOptions(data?.productSearch?.total_count);
-
-        paginationCheck(
-          data?.productSearch?.total_count,
-          data?.productSearch?.page_info?.total_pages
-        );
+        }));
+      } else {
+        // build an array of requests for every product type
+        groupByItem.forEach(() => {
+          variables.pageSize = storeConfig.groupConfig?.size || 3;
+          searchRequests.push(fetchProductSearch({
+            ...variables,
+            ...storeCtx,
+            apiUrl: storeCtx.apiUrl,
+            filter: filters,
+            categorySearch: !!categoryPath,
+          }));
+        })
       }
-      setLoading(false);
-      setPageLoading(false);
-    } catch (error) {
+
+      const data = await Promise.allSettled(searchRequests);
+      const fulfilledData = data
+        .filter((result): result is PromiseFulfilledResult<ProductSearchResponse['data']> => result.status === 'fulfilled')
+        .map((fulfilled) => fulfilled.value)
+
+      if (fulfilledData.length === 1) {
+        const [fulfilledItem] = fulfilledData;
+        setItems(fulfilledItem?.productSearch?.items || []);
+      } else {
+        const groupedProducts = fulfilledData.reduce<GroupedProducts>((groups, data) => {
+          const groupProducts = data?.productSearch?.items || [];
+          const [sampleProduct] = groupProducts;
+          if (sampleProduct) {
+            const groupName = getProductAttribute(sampleProduct, storeConfig.groupConfig?.groupBy || '')
+            groups[groupName] = groupProducts;
+          }
+          return groups;
+        }, {});
+        setItems(groupedProducts);
+      }
+
+      const firstItem = fulfilledData[0];
+      setFacets(firstItem?.productSearch?.facets || []);
+      setTotalCount(firstItem?.productSearch?.total_count || 0);
+      setTotalPages(firstItem?.productSearch?.page_info?.total_pages || 1);
+      handleCategoryNames(firstItem?.productSearch?.facets || []);
+
+      getPageSizeOptions(firstItem?.productSearch?.total_count);
+
+      paginationCheck(
+        firstItem?.productSearch?.total_count,
+        firstItem?.productSearch?.page_info?.total_pages
+      );
+
+    } finally {
       setLoading(false);
       setPageLoading(false);
     }
@@ -286,9 +300,9 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 
   const checkMinQueryLength = () => {
     if (
-      !storeCtx.config?.currentCategoryUrlPath &&
+      !storeConfig?.currentCategoryUrlPath &&
       searchCtx.phrase.trim().length <
-        (Number(storeCtx.config.minQueryLength) || DEFAULT_MIN_QUERY_LENGTH)
+        (Number(storeConfig?.minQueryLength) || DEFAULT_MIN_QUERY_LENGTH)
     ) {
       setItems([]);
       setFacets([]);
@@ -304,7 +318,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const getPageSizeOptions = (totalCount: number | null) => {
     const optionsArray: PageSizeOption[] = [];
     const pageSizeString =
-      storeCtx?.config?.perPageConfig?.pageSizeOptions ||
+      storeConfig?.perPageConfig?.pageSizeOptions ||
       DEFAULT_PAGE_SIZE_OPTIONS;
     const pageSizeArray = pageSizeString.split(',');
     pageSizeArray.forEach((option) => {
@@ -314,7 +328,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       });
     });
 
-    if (storeCtx?.config?.allowAllProducts == '1') {
+    if (storeConfig?.allowAllProducts == '1') {
       // '==' is intentional for conversion
       optionsArray.push({
         label: showAllLabel,
@@ -334,36 +348,41 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     }
   };
 
-  const handleCategorySearch = (
-    categoryPath: OptionalArray<string> | undefined,
-    filters: FacetFilter[]
-  ) => {
-    if (categoryPath) {
-      //add category filter
-      if (Array.isArray(categoryPath)) {
-        if (categoryPath.length === 1) {
-          filters.push({
-            attribute: 'categoryPath',
-            eq: categoryPath[0],
-          });
-        } else {
-          filters.push({
-            attribute: 'categoryPath',
-            in: categoryPath,
-          });
-        }
+  const getCategorySearchFilters = (
+    categoryPath: OptionalArray<string> | undefined): FacetFilter[] => {
+    const filters: FacetFilter[] = [];
+    if (!categoryPath) {
+      return filters;
+    }
+    //add category filter
+    if (Array.isArray(categoryPath)) {
+      if (categoryPath.length === 1) {
+        filters.push({
+          attribute: 'categoryPath',
+          eq: categoryPath[0],
+        });
       } else {
         filters.push({
           attribute: 'categoryPath',
-          eq: categoryPath,
+          in: categoryPath,
         });
-
-        //add default category sort
-        if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
-          variables.sort = CATEGORY_SORT_DEFAULT;
-        }
       }
+    } else {
+      filters.push({
+        attribute: 'categoryPath',
+        eq: categoryPath,
+      });
     }
+
+    return filters;
+
+  };
+
+  const getGroupedSearchFilter = (attributeName: string, attributeValue: string): FacetFilter => {
+    return {
+      attribute: attributeName,
+      eq: attributeValue,
+    };
   };
 
   const handleCategoryNames = (facets: Facet[]) => {
@@ -404,15 +423,59 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     }
   }, [searchCtx.phrase, searchCtx.sort, currentPage, pageSize]);
 
+  const productContext: ProductsContextType= {
+    variables,
+    loading,
+    items,
+    setItems,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalCount,
+    setTotalCount,
+    totalPages,
+    setTotalPages,
+    facets,
+    setFacets,
+    categoryName,
+    setCategoryName,
+    currencySymbol,
+    setCurrencySymbol,
+    currencyRate,
+    setCurrencyRate,
+    minQueryLength,
+    minQueryLengthReached,
+    setMinQueryLengthReached,
+    pageSizeOptions,
+    setRoute: storeCtx.route,
+    refineProduct: handleRefineProductSearch,
+    pageLoading,
+    setPageLoading,
+    categoryPath: firstCategoryPath,
+    viewType,
+    setViewType,
+    listViewType,
+    setListViewType,
+    cartId: storeConfig.resolveCartId,
+    refreshCart: storeConfig.refreshCart,
+    resolveCartId: storeConfig.resolveCartId,
+    addToCart: storeConfig.addToCart,
+  };
+
   return (
-    <ProductsContext.Provider value={context}>
+    <ProductsContext.Provider value={productContext}>
       {children}
     </ProductsContext.Provider>
   );
 };
 
+const isGroupedProducts = (value?: Product[] | GroupedProducts | null): value is GroupedProducts => {
+return !Array.isArray(value);
+}
+
 const useProducts = () => {
   return useContext(ProductsContext);
 };
 
-export { ProductsContextProvider, useProducts };
+export { ProductsContextProvider, useProducts, isGroupedProducts };

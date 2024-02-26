@@ -1,35 +1,42 @@
 
-.grid-container {
+table.grid-table {
   display: grid;
-  gap: 1px;
-  height: auto;
-  grid-template-columns: auto 2fr 1fr 1fr 1fr 50px;
-  padding: 10px;
+  border-collapse: collapse;
+  min-width: 100%;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
   align-items: center;
+  font-size: 12px;
+}
+
+.grid-table thead,
+.grid-table tbody,
+.grid-table tr {
+  display: contents;
+}
+
+.grid-table th,
+.grid-table td {
+  padding: 8px;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.grid-container > span {
-  position: relative;
-  margin-bottom: 12px;
+.grid-table th {
+  background-color: #f9f9f9;
+  text-align: left;
 }
 
-.grid-container > span::after {
-  content: '';
-  position: absolute;
-  background-color: #000;
-  z-index: 1;
-  inline-size: 100vw;
-  block-size: 1px;
-  inset-inline-start: 0;
-  inset-block-start: calc(100% + 8px);
+.grid-table tr {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
-.grid-container .grid-header {
-
-}
-
-.grid-container .grid-item {
-
+.grid-table td {
+  height: 70px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
