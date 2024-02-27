@@ -45,7 +45,6 @@ export const ProductsContainer: FunctionComponent<Props> = ({
     minQueryLengthReached,
     pageSizeOptions,
     loading,
-    categoryPath,
   } = productsCtx;
 
   useEffect(() => {

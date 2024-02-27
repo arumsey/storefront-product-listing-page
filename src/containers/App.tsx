@@ -114,11 +114,7 @@ export const App: FunctionComponent = () => {
               )}
           </div>
           {productsCtx.loading ? (
-            screenSize.mobile ? (
               <Loading label={loadingLabel}/>
-            ) : (
-              <Shimmer/>
-            )
           ) : (
             <>
               <div className="flex w-full h-full">
