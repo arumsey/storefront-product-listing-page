@@ -1,4 +1,3 @@
-import { StoreProps } from '../../context';
 import {
   sanitizeString,
   validateStoreDetailsKeys,
@@ -9,8 +8,9 @@ describe('should sanitize string', () => {
       'hello<script>hello</script><div>hello</div>'
     );
     const unsanitizedStr2 = sanitizeString('<script>hello</script>');
-    const expectedStr1 = 'helloscripthelloscriptdivhellodiv';
-    const expectedStr2 = 'scripthelloscript';
+
+    const expectedStr1 = 'hellohellohello';
+    const expectedStr2 = 'hello';
 
     expect(unsanitizedStr1).toEqual(expectedStr1);
     expect(unsanitizedStr2).toEqual(expectedStr2);
@@ -29,6 +29,9 @@ describe('should sanitize string', () => {
     expect(validStr2).toEqual(expectedStr2);
     expect(validStr3).toEqual(expectedStr3);
     expect(validStr4).toEqual(expectedStr4);
+
+    // url test
+    expect(sanitizeString('https://www.adobe.com')).toEqual('https://www.adobe.com');
   });
 });
 
@@ -60,13 +63,15 @@ describe('test validating storeDetails.', () => {
       apiKey: 'storefront-catalog-apollo',
       apiUrl: '',
       environmentType: '',
-    } as StoreProps;
+    };
+
     const expectedStoreDetails = JSON.parse(JSON.stringify(storeDetails));
 
     expect(validateStoreDetailsKeys(storeDetails)).toEqual(
       expectedStoreDetails
     );
   });
+
   test('invalid storeDetails should remove unknown keys', () => {
     const invalidStoreDetails = {
       environmentId: '22500baf-135e-4b8f-8f18-14276de7d356',
@@ -97,7 +102,7 @@ describe('test validating storeDetails.', () => {
       mediaHost: '',
       environmentType: '',
       shouldGetRemoved: 'should not belong here',
-    } as StoreProps;
+    };
 
     const expectedStoreDetails = {
       environmentId: '22500baf-135e-4b8f-8f18-14276de7d356',
@@ -127,7 +132,7 @@ describe('test validating storeDetails.', () => {
       apiUrl: '',
       mediaHost: '',
       environmentType: '',
-    } as StoreProps;
+    };
 
     expect(validateStoreDetailsKeys(invalidStoreDetails)).toEqual(
       expectedStoreDetails

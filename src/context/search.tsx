@@ -49,8 +49,8 @@ export const SearchContext = createContext({} as SearchContextProps);
 
 const SearchProvider: FunctionComponent = ({ children }) => {
   const storeCtx = useStore();
-  const phraseFromUrl = getValueFromUrl(storeCtx.searchQuery || 'q');
 
+  const phraseFromUrl = getValueFromUrl(storeCtx.config?.searchQuery || 'q');
   const sortFromUrl = getValueFromUrl('product_list_order');
 
   const graphQLSort = generateGQLSortInput(sortFromUrl);

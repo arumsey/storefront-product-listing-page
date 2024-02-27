@@ -15,17 +15,19 @@ import { Category } from "../types/interface";
 import { isDefined } from "../utils/isDefined";
 import { useStore } from './store';
 
-interface CategoriesProps {
+interface CategoriesContext {
   categories: Category[];
 }
 
-const CategoriesContext = createContext<CategoriesProps>({
+const categoriesContext = createContext<CategoriesContext>({
   categories: [],
 });
 
+const { Provider } = categoriesContext;
+
 const CategoriesProvider: FunctionComponent = ({ children }) => {
   const [categories, setCategories] =
-    useState<CategoriesProps>({
+    useState<CategoriesContext>({
       categories: [],
     });
 
@@ -53,14 +55,14 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
   };
 
   return (
-    <CategoriesContext.Provider value={categoriesContext}>
+    <Provider value={categoriesContext}>
       {children}
-    </CategoriesContext.Provider>
+    </Provider>
   );
 };
 
 const useCategories = () => {
-  const { categories } = useContext(CategoriesContext);
+  const { categories } = useContext(categoriesContext);
 
   const findCategory = useCallback((id: string) => {
     return categories.find((cat) => cat.id === id);
@@ -89,4 +91,4 @@ const useCategories = () => {
   }
 };
 
-export { CategoriesProvider, useCategories, CategoriesProps };
+export { CategoriesProvider, useCategories };

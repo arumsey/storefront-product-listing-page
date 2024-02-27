@@ -29,10 +29,10 @@ import { validateStoreDetailsKeys } from './utils/validateStoreDetails';
 
 type OptionalHeaderViews = Omit<StoreDetailsConfig, 'headerViews'> & Pick<Partial<StoreDetailsConfig>, 'headerViews'>;
 
-export type StoreConfig = Omit<StoreProps, 'config'> & { config: OptionalHeaderViews };
+type UnsafeStoreConfig = Omit<StoreProps, 'config'> & { config: OptionalHeaderViews } & Record<string, unknown>;
 
 type MountSearchPlpProps = {
-  storeDetails: StoreConfig;
+  storeDetails: UnsafeStoreConfig;
   root: HTMLElement;
 };
 
@@ -46,7 +46,7 @@ const LiveSearchPLP = ({ storeDetails, root }: MountSearchPlpProps) => {
 
   const userViewHistory = getUserViewHistory();
 
-  const updatedStoreDetails: StoreProps = {
+  const updatedStoreDetails: UnsafeStoreConfig = {
     ...storeDetails,
     config: {
       headerViews: ['search', 'sort'],

@@ -107,6 +107,11 @@ const ProductView = `
                             currency
                         }
                     }
+                    final {
+                      amount {
+                        value
+                      }
+                    }                     
                 }
             }
         }

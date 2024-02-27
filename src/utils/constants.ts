@@ -28,3 +28,5 @@ export const CATEGORY_SORT_DEFAULT: ProductSearchSortInput[] = [
 export const SEARCH_UNIT_ID = 'livesearch-plp';
 export const BOOLEAN_YES = 'yes';
 export const BOOLEAN_NO = 'no';
+
+export const SONY_PRODUCT_TYPE = 'sonybt_product_type'

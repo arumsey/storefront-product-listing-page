@@ -65,7 +65,7 @@ const fetchProductSearch = async ({
     phrase,
     pageSize,
     currentPage,
-    filter,
+    filter: [...filter],
     sort,
     context,
   };

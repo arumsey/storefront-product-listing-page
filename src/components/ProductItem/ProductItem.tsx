@@ -114,16 +114,6 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   }
 
-  // will have to figure out discount logic for amount_off and percent_off still
-  const discount: boolean = refinedProduct
-    ? refinedProduct.refineProduct?.priceRange?.minimum?.regular?.amount
-        ?.value >
-      refinedProduct.refineProduct?.priceRange?.minimum?.final?.amount?.value
-    : product?.price_range?.minimum_price?.regular_price?.value >
-        product?.price_range?.minimum_price?.final_price?.value ||
-      productView?.price?.regular?.amount?.value >
-        productView?.price?.final?.amount?.value;
-
   const isSimple = product?.__typename === 'SimpleProduct';
   const isComplexProductView = productView?.__typename === 'ComplexProductView';
   const isBundle = product?.__typename === 'BundleProduct';
@@ -226,7 +216,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
               isGiftCard={isGiftCard}
               isConfigurable={isConfigurable}
               isComplexProductView={isComplexProductView}
-              discount={discount}
+              discount={false}
               currencySymbol={currencySymbol}
               currencyRate={currencyRate}
             />
@@ -285,7 +275,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                 isGiftCard={isGiftCard}
                 isConfigurable={isConfigurable}
                 isComplexProductView={isComplexProductView}
-                discount={discount}
+                discount={false}
                 currencySymbol={currencySymbol}
                 currencyRate={currencyRate}
               />

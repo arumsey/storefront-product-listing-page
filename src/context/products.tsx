@@ -25,7 +25,7 @@ import {
   DEFAULT_MIN_QUERY_LENGTH,
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGE_SIZE_OPTIONS,
-  SEARCH_SORT_DEFAULT,
+  SEARCH_SORT_DEFAULT, SONY_PRODUCT_TYPE,
 } from '../utils/constants';
 import { moveToTop } from '../utils/dom';
 import {
@@ -233,15 +233,20 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
         }
       }
 
+      const shouldUseGrouping = filters.every((facet) => facet.attribute !== storeConfig.groupConfig?.groupBy);
       const groupByItem = storeConfig.groupConfig?.groupBy ? sonyGroupMap[storeConfig.groupConfig?.groupBy] : undefined;
       const searchRequests: Array<ReturnType<typeof fetchProductSearch>> = [];
-      
-      if (!groupByItem) {
+
+      //TODO: remove sonybt_product_type from filters until supported by backend
+      const tempFilters = filters.filter((facet) => facet.attribute !== SONY_PRODUCT_TYPE);
+
+      if (!shouldUseGrouping || !groupByItem) {
+        // single product search request
         searchRequests.push(fetchProductSearch({
           ...variables,
           ...storeCtx,
           apiUrl: storeCtx.apiUrl,
-          filter: filters,
+          filter: tempFilters,
           categorySearch: !!categoryPath,
         }));
       } else {
@@ -252,7 +257,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
             ...variables,
             ...storeCtx,
             apiUrl: storeCtx.apiUrl,
-            filter: filters,
+            filter: [...tempFilters],
             categorySearch: !!categoryPath,
           }));
         })
@@ -378,13 +383,6 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 
   };
 
-  const getGroupedSearchFilter = (attributeName: string, attributeValue: string): FacetFilter => {
-    return {
-      attribute: attributeName,
-      eq: attributeValue,
-    };
-  };
-
   const handleCategoryNames = (facets: Facet[]) => {
     facets.map((facet) => {
       const bucketType = facet?.buckets[0]?.__typename;
@@ -411,7 +409,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   useEffect(() => {
     if (attributeMetadataCtx.filterableInSearch) {
       const filtersFromUrl = getFiltersFromUrl(
-        attributeMetadataCtx.filterableInSearch
+        [...attributeMetadataCtx.filterableInSearch, SONY_PRODUCT_TYPE]
       );
       searchCtx.setFilters(filtersFromUrl);
     }
@@ -448,7 +446,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     minQueryLengthReached,
     setMinQueryLengthReached,
     pageSizeOptions,
-    setRoute: storeCtx.route,
+    setRoute: storeConfig?.route,
     refineProduct: handleRefineProductSearch,
     pageLoading,
     setPageLoading,
@@ -471,7 +469,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 };
 
 const isGroupedProducts = (value?: Product[] | GroupedProducts | null): value is GroupedProducts => {
-return !Array.isArray(value);
+  return !Array.isArray(value);
 }
 
 const useProducts = () => {

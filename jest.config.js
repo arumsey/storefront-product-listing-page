@@ -25,6 +25,7 @@ const config = {
     TEST_URL: '',
     API_KEY: '',
     SANDBOX_KEY: '',
+    MEDIA_HOST: '',
   },
 };
 

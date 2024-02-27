@@ -49,66 +49,22 @@ export const sampleProductNoImage: Product = {
     attributes: [],
     short_description: null,
     images: null,
-    new_from_date: null,
-    new_to_date: null,
-    created_at: null,
-    updated_at: null,
     price: {
       final: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
       regular: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
     },
-    priceRange: {
-      maximum: {
-        final: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-      minimum: {
-        final: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 8,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-    },
-    gift_message_available: null,
     url: 'http://master-7rqtwti-eragxvhtzr4am.us-4.magentosite.cloud/sprite-foam-yoga-brick.html',
     urlKey: 'sprite-foam-yoga-brick',
-    media_gallery: null,
-    custom_attributes: null,
-    add_to_cart_allowed: null,
     options: null,
   },
   highlights: [
@@ -203,66 +159,22 @@ export const sampleProductDiscounted: Product = {
         roles: ['thumbnail'],
       },
     ],
-    new_from_date: null,
-    new_to_date: null,
-    created_at: null,
-    updated_at: null,
     price: {
       final: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
       regular: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
     },
-    priceRange: {
-      maximum: {
-        final: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-      minimum: {
-        final: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 8,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-    },
-    gift_message_available: null,
     url: 'http://master-7rqtwti-eragxvhtzr4am.us-4.magentosite.cloud/sprite-foam-yoga-brick.html',
     urlKey: 'sprite-foam-yoga-brick',
-    media_gallery: null,
-    custom_attributes: null,
-    add_to_cart_allowed: null,
     options: null,
   },
   highlights: [
@@ -357,66 +269,22 @@ export const sampleProductNotDiscounted: Product = {
         roles: ['thumbnail'],
       },
     ],
-    new_from_date: null,
-    new_to_date: null,
-    created_at: null,
-    updated_at: null,
     price: {
       final: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
       regular: {
         amount: {
           value: 5,
           currency: 'USD',
         },
-        adjustments: null,
       },
     },
-    priceRange: {
-      maximum: {
-        final: {
-          amount: {
-            value: 8,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 8,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-      minimum: {
-        final: {
-          amount: {
-            value: 5,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-        regular: {
-          amount: {
-            value: 8,
-            currency: 'USD',
-          },
-          adjustments: null,
-        },
-      },
-    },
-    gift_message_available: null,
     url: 'http://master-7rqtwti-eragxvhtzr4am.us-4.magentosite.cloud/sprite-foam-yoga-brick.html',
     urlKey: 'sprite-foam-yoga-brick',
-    media_gallery: null,
-    custom_attributes: null,
-    add_to_cart_allowed: null,
     options: null,
   },
   highlights: [

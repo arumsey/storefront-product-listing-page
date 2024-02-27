@@ -53,6 +53,7 @@
       storeCode: 'main_website_store',
       storeViewCode: 'us',
       apiKey: 'c239b4de01ed4e72bfbaba2620b15547',
+      mediaHost: encodeURI('https://www.sonybiotechnology.com'),
       config: {
         pageSize: 10,
         perPageConfig: {
@@ -83,6 +84,7 @@
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension
         // refreshCart?: refreshCart, // Luma specific addToCart method. Enabled with the extension
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action
+        route: ({ urlKey }) => `/${urlKey}`,
       },
       context: {
         customerGroup: '0',

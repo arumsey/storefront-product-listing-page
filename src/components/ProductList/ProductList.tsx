@@ -18,6 +18,8 @@ import { isGroupedProducts, useProducts, useStore } from '../../context';
 import { GroupedProducts, Product } from '../../types/interface';
 import { classNames } from '../../utils/dom';
 import ProductItem from '../ProductItem';
+import { getProductAttribute } from "../../utils/getProductAttribute";
+import { SONY_PRODUCT_TYPE } from "../../utils/constants";
 
 export interface ProductListProps extends HTMLAttributes<HTMLDivElement> {
   products: Array<Product> | GroupedProducts | null | undefined;
@@ -29,7 +31,6 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
   showFilters,
   ...otherProps
 }) => {
-  const productsCtx = useProducts();
   const {
     currencySymbol,
     currencyRate,
@@ -37,8 +38,10 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
     refineProduct,
     refreshCart,
     addToCart,
+    currentPage,
+    pageSize,
     totalCount,
-  } = productsCtx;
+  } = useProducts();
   const [cartUpdated, setCartUpdated] = useState(false);
   const [itemAdded, setItemAdded] = useState('');
   const { viewType } = useProducts();
@@ -60,7 +63,9 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
   if (isGroupedProducts(products)) {
     groupNames.push(...Object.keys(products));
   } else {
-    groupNames.push('Unknown product type');
+    const [firstProduct] = products || [];
+    const firstProductType = getProductAttribute(firstProduct, SONY_PRODUCT_TYPE)
+    groupNames.push(firstProductType || 'Unknown product type');
   }
 
     return (
@@ -97,19 +102,25 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
           {groupNames.map((groupName) => {
             const typeId = '16146';
             const viewMoreUrl = new URL(window.location.href);
-            viewMoreUrl.searchParams.set('sonybt_product_type', typeId);
+            viewMoreUrl.searchParams.set(SONY_PRODUCT_TYPE, typeId);
             let groupProducts: Product[] = [];
             if (isGroupedProducts(products)) {
               groupProducts = products[groupName] || [];
             } else {
               groupProducts = products || [];
             }
+            const pageStart = (pageSize * (currentPage - 1)) + 1;
+            const pageEnd = Math.min(pageStart + pageSize - 1, totalCount);
             return (
               <div key={groupName} className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-0">
                 <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px]">
                   <h2 className='inline-flex leading-loose'>{groupName}</h2>
-                  <p className='text-xxs'>{`(3 of ${totalCount})`}</p>
-                  {groupNames.length > 1 && <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>}
+                  {isGroupedProducts(products) ? (
+                    <p className='text-xxs'>{`(${groupProducts.length} of ${totalCount})`}</p>
+                  ) : (
+                    <p className='text-xxs'>{`(${pageStart} to ${pageEnd} of ${totalCount})`}</p>
+                  )}
+                  {isGroupedProducts(products) && <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>}
                 </div>
                 <table className="grid-table">
                   <thead>

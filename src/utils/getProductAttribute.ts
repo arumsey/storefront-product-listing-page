@@ -10,9 +10,12 @@ it.
 import { Product } from '../types/interface';
 
 const getProductAttribute = (
-  product: Product,
+  product: Product | null | undefined,
   attributeName: string,
 ): string => {
+  if (!product) {
+    return '';
+  }
   if (!('productView' in product)) {
     return '';
   }

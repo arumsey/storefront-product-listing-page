@@ -48,6 +48,8 @@ export interface StoreDetailsConfig {
   imageCarousel?: boolean;
   optimizeImages?: boolean;
   imageBaseWidth?: number;
+  route?: RedirectRouteFunc; // optional product redirect func prop
+  searchQuery?: string; // 'q' default search query param if not provided.
   resolveCartId?: () => Promise<string | undefined>;
   refreshCart?: () => void;
   addToCart?: (
@@ -213,6 +215,8 @@ export interface Product {
     id: number;
     name: string;
     sku: string;
+    url: null | string;
+    urlKey: null | string;
     description: null | ComplexTextValue;
     short_description: null | ComplexTextValue;
     attributes: Array<{
@@ -221,30 +225,10 @@ export interface Product {
       value: string;
     }> | null;
     images: null | ProductViewMedia[];
-    new_from_date: null | string;
-    new_to_date: null | string;
-    created_at: null | string;
-    updated_at: null | string;
     price: {
-      final: ProductViewPrice;
       regular: ProductViewPrice;
+      final: ProductViewPrice;
     };
-    priceRange: {
-      minimum: {
-        final: ProductViewPrice;
-        regular: ProductViewPrice;
-      };
-      maximum: {
-        final: ProductViewPrice;
-        regular: ProductViewPrice;
-      };
-    };
-    gift_message_available: null | string;
-    url: null | string;
-    urlKey: null | string;
-    media_gallery: null | ProductViewMedia;
-    custom_attributes: null | CustomAttribute;
-    add_to_cart_allowed: null | boolean;
     options:
       | null
       | {
@@ -322,7 +306,6 @@ export interface ProductPrice {
 }
 
 export interface ProductViewPrice {
-  adjustments: null | { amount: number; code: string };
   amount: Money;
 }
 

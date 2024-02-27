@@ -12,7 +12,6 @@ import { useContext, useMemo } from 'preact/hooks';
 
 import {
   QueryContextInput,
-  RedirectRouteFunc,
   StoreDetailsConfig,
 } from '../types/interface';
 import { WithChildrenProps } from "../types/utils";
@@ -28,8 +27,6 @@ interface StoreProps extends WithChildrenProps {
   apiUrl: string;
   apiKey: string;
   mediaHost: string;
-  route?: RedirectRouteFunc; // optional product redirect func prop
-  searchQuery?: string; // 'q' default search query param if not provided.
 }
 
 const StoreContext = createContext<StoreProps>({
@@ -43,10 +40,10 @@ const StoreContext = createContext<StoreProps>({
   mediaHost: '',
   config: {
     headerViews: ['search', 'sort'],
+    route: undefined,
+    searchQuery: 'q',
   },
   context: {},
-  route: undefined,
-  searchQuery: 'q',
 });
 
 const StoreContextProvider = ({
@@ -67,8 +64,6 @@ const StoreContextProvider = ({
         context,
         apiKey,
         mediaHost,
-        route,
-        searchQuery,
       } = storeProps;
 
       return {
@@ -88,8 +83,6 @@ const StoreContextProvider = ({
             ? SANDBOX_KEY
             : apiKey,
         mediaHost: mediaHost ? mediaHost : MEDIA_HOST,
-        route,
-        searchQuery,
       }
     },
     [storeProps]
