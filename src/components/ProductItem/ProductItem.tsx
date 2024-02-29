@@ -24,9 +24,11 @@ import { SEARCH_UNIT_ID } from '../../utils/constants';
 import {
   generateOptimizedImages,
   getProductImageURLs,
+  getImageUrl,
 } from '../../utils/getProductImage';
 import { htmlStringDecode } from '../../utils/htmlStringDecode';
 import { AddToCartButton } from '../AddToCartButton';
+import { Image } from '../Image';
 import { ImageCarousel } from '../ImageCarousel';
 import { SwatchButtonGroup } from '../SwatchButtonGroup';
 import ProductPrice from './ProductPrice';
@@ -58,7 +60,9 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   setError,
   addToCart,
 }: ProductProps) => {
+
   const { product, productView } = item;
+
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [selectedSwatch, setSelectedSwatch] = useState('');
   const [imagesFromRefinedProduct, setImagesFromRefinedProduct] = useState<
@@ -96,15 +100,13 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   };
 
   const productImageArray = (imagesFromRefinedProduct
-    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1)
+    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1, undefined, mediaHost)
     : getProductImageURLs(
         productView.images ?? [],
         imageCarousel ? 3 : 1, // number of images to display in carousel
-        product.image?.url ?? undefined
-      )).map((image) => {
-        const imageUrl = new URL(image);
-        return `${mediaHost}${imageUrl.pathname}`;
-  });
+        product.image?.url ?? undefined,
+         mediaHost
+      ));
 
   let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
@@ -112,6 +114,17 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
       productImageArray,
       imageBaseWidth ?? 200
     );
+  }
+
+  const productThumbnailUrl = getImageUrl(product.thumbnail, mediaHost);
+  let optimizedThumbnailArray: { src: string; srcset: any }[] = [];
+  if (productThumbnailUrl) {
+    if (optimizeImages) {
+      optimizedThumbnailArray = generateOptimizedImages(
+        [productThumbnailUrl],
+        imageBaseWidth ?? 50
+      );
+    }
   }
 
   const isSimple = product?.__typename === 'SimpleProduct';
@@ -171,17 +184,15 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                 onClick={onProductClick}
                 className="!text-primary hover:no-underline hover:text-primary w-[50px]"
               >
-                {/* Image */}
-                {productImageArray.length ? (
-                  <ImageCarousel
-                    images={
-                      optimizedImageArray.length
-                        ? optimizedImageArray
-                        : productImageArray
-                    }
-                    productName={product.name}
-                    carouselIndex={carouselIndex}
-                    setCarouselIndex={setCarouselIndex}
+                {/* Thumbnail */}
+                {productThumbnailUrl ? (
+                  <Image
+                    image={
+                    optimizedThumbnailArray.length
+                      ? optimizedThumbnailArray[0]
+                      : productThumbnailUrl}
+                    alt={product.name}
+                    baseWidth={imageBaseWidth}
                   />
                 ) : (
                   <NoImage

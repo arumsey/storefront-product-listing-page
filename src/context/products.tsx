@@ -19,7 +19,7 @@ import {
   ProductSearchQuery, ProductSearchResponse,
   RedirectRouteFunc,
 } from '../types/interface';
-import { OptionalArray, WithChildrenProps } from "../types/utils";
+import { WithChildrenProps } from "../types/utils";
 import {
   CATEGORY_SORT_DEFAULT,
   DEFAULT_MIN_QUERY_LENGTH,
@@ -173,12 +173,12 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     return storeConfig?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
   }, [storeConfig.minQueryLength]);
 
-  let categoryPath = storeConfig?.currentCategoryUrlPath;
-  const firstCategoryPath = Array.isArray(categoryPath) ? categoryPath[0] : categoryPath;
+  const categoryPath = storeConfig?.currentCategoryUrlPath;
+  let categoryUrlList: string[] = categoryPath ? [categoryPath] : [];
   if (typeof categoryPath === 'string') {
     const startCategory = findCategoryByPath(categoryPath);
     if (startCategory) {
-      categoryPath = buildCategoryList(startCategory.id).map((cat) => cat.urlPath);
+      categoryUrlList = buildCategoryList(startCategory.id).map((cat) => cat.urlPath);
     }
   }
 
@@ -223,10 +223,10 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       setLoading(true);
       moveToTop();
 
-      const categoryFilters = getCategorySearchFilters(categoryPath);
+      const categoryFilters = getCategorySearchFilters(categoryUrlList);
       const filters = [...variables.filter, ...categoryFilters];
 
-      if (!Array.isArray(categoryPath)) {
+      if (categoryUrlList.length === 1) {
         //add default category sort
         if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
           variables.sort = CATEGORY_SORT_DEFAULT;
@@ -354,28 +354,21 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   };
 
   const getCategorySearchFilters = (
-    categoryPath: OptionalArray<string> | undefined): FacetFilter[] => {
+    categoryPath?: string[]): FacetFilter[] => {
     const filters: FacetFilter[] = [];
     if (!categoryPath) {
       return filters;
     }
-    //add category filter
-    if (Array.isArray(categoryPath)) {
-      if (categoryPath.length === 1) {
-        filters.push({
-          attribute: 'categoryPath',
-          eq: categoryPath[0],
-        });
-      } else {
-        filters.push({
-          attribute: 'categoryPath',
-          in: categoryPath,
-        });
-      }
+    //add category filters
+    if (categoryPath.length === 1) {
+      filters.push({
+        attribute: 'categoryPath',
+        eq: categoryPath[0],
+      });
     } else {
       filters.push({
         attribute: 'categoryPath',
-        eq: categoryPath,
+        in: categoryPath,
       });
     }
 
@@ -450,7 +443,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     refineProduct: handleRefineProductSearch,
     pageLoading,
     setPageLoading,
-    categoryPath: firstCategoryPath,
+    categoryPath,
     viewType,
     setViewType,
     listViewType,

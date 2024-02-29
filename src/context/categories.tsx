@@ -25,13 +25,24 @@ const categoriesContext = createContext<CategoriesContext>({
 
 const { Provider } = categoriesContext;
 
-const CategoriesProvider: FunctionComponent = ({ children }) => {
-  const [categories, setCategories] =
-    useState<CategoriesContext>({
-      categories: [],
-    });
+const getCategory = (urlPath: string, categories: Category[]) => {
+  return categories.find((cat) => cat.urlPath === urlPath);
+};
 
-  const storeCtx = useStore();
+const CategoriesProvider: FunctionComponent = ({ children }) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const { config: storeConfig, ...storeCtx } = useStore();
+
+  useEffect(() => {
+    if (storeConfig.onCategoryChange && storeConfig.currentCategoryUrlPath) {
+      const selectedCategory = getCategory(storeConfig.currentCategoryUrlPath, categories);
+      if (selectedCategory?.name) {
+        storeConfig.onCategoryChange(selectedCategory?.name);
+      }
+    }
+
+  }, [categories]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +54,7 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
         subtree: { depth: 4, startLevel: 1 },
       });
       if (data?.categories) {
-        setCategories({ categories: data.categories })
+        setCategories(data.categories)
       }
     };
 
@@ -51,7 +62,7 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
   }, []);
 
   const categoriesContext = {
-    ...categories,
+    categories,
   };
 
   return (
@@ -64,7 +75,7 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
 const useCategories = () => {
   const { categories } = useContext(categoriesContext);
 
-  const findCategory = useCallback((id: string) => {
+  const findCategory = useCallback((id: string): Category | undefined => {
     return categories.find((cat) => cat.id === id);
   }, [categories]);
 
@@ -72,13 +83,18 @@ const useCategories = () => {
     return categories.find((cat) => cat.urlPath === path);
   }, [categories]);
 
-  const buildCategoryList = useCallback((start: string) => {
+  const buildCategoryList = useCallback((start: string): Category[] => {
     const startCategory = findCategory(start);
     if (!startCategory) {
       return [];
     }
-    const childCategories: Category[] = startCategory.children
-      .flatMap((childId) => findCategory(childId))
+
+    const flattenCategories = (ids: string[]): Array<Category | undefined> => ids.flatMap((catId) => {
+      const cat = findCategory(catId);
+      return [cat, ...flattenCategories(cat?.children || [])];
+    });
+
+    const childCategories: Category[] = flattenCategories(startCategory.children)
       .filter((cat): cat is Category => isDefined<Category>(cat));
     return [startCategory, ...childCategories];
   }, [findCategory]);

@@ -35,7 +35,7 @@ export interface StoreDetailsConfig {
   pageSize?: number;
   currencySymbol?: string;
   currencyRate?: string;
-  currentCategoryUrlPath?: string | string[];
+  currentCategoryUrlPath?: string;
   categoryName?: string;
   groupConfig?: { groupBy: string; size: number; };
   headerViews: Array<'search' | 'switch' | 'sort'>;
@@ -57,6 +57,7 @@ export interface StoreDetailsConfig {
     options: [],
     quantity: number
   ) => Promise<void | undefined>;
+  onCategoryChange?: (category: string) => void;
 }
 
 // Types
@@ -199,8 +200,7 @@ export interface Product {
     __typename: string;
     name: string;
     sku: string;
-    description: null | ComplexTextValue;
-    short_description: null | ComplexTextValue;
+    canonical_url: null | string;
     image: null | ProductMedia;
     small_image: null | ProductMedia;
     thumbnail: null | ProductMedia;
@@ -208,7 +208,6 @@ export interface Product {
       minimum_price: ProductPrice;
       maximum_price: ProductPrice;
     };
-    canonical_url: null | string;
   };
   productView: {
     __typename: string;
@@ -218,7 +217,7 @@ export interface Product {
     url: null | string;
     urlKey: null | string;
     description: null | ComplexTextValue;
-    short_description: null | ComplexTextValue;
+    shortDescription: null | ComplexTextValue;
     attributes: Array<{
       label: string;
       name: string;

@@ -65,7 +65,7 @@
         currencyRate: '1',
         displayOutOfStock: true,
         allowAllProducts: false,
-        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents/anti-human-antibodies',
+        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents',
         // categoryName: '', // name of category to display
         headerViews: [],
         groupConfig: {
@@ -80,11 +80,14 @@
         // imageCarousel: false, //enable multiple image carousel - EXPERIMENTAL, default is false
         listView: true, //add listview as an option - EXPERIMENTAL, default is false
         optimizeImages: true, // optimize images with Fastly
-        // imageBaseWidth: 200,
+        imageBaseWidth: 50,
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension
         // refreshCart?: refreshCart, // Luma specific addToCart method. Enabled with the extension
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action
         route: ({ urlKey }) => `/${urlKey}`,
+        onCategoryChange: (category) => {
+          document.title = category;
+        },
       },
       context: {
         customerGroup: '0',

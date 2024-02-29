@@ -42,8 +42,15 @@ const ProductView = `
             id
             sku
             name
+            description,
+            shortDescription
             url
             urlKey
+            attributes(roles: "visible_in_plp") {
+              label
+              name
+              value
+            }
             images {
                 label
                 url
@@ -95,11 +102,6 @@ const ProductView = `
                 }
             }
             ... on SimpleProductView {
-                attributes(roles: "visible_in_plp") {
-                  label
-                  name
-                  value
-                }
                 price {
                     regular {
                         amount {
