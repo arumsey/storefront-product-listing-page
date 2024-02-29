@@ -233,7 +233,8 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
         }
       }
 
-      const shouldUseGrouping = filters.every((facet) => facet.attribute !== storeConfig.groupConfig?.groupBy);
+      const shouldUseGrouping = !variables.phrase
+        && filters.every((facet) => facet.attribute !== storeConfig.groupConfig?.groupBy);
       const groupByItem = storeConfig.groupConfig?.groupBy ? sonyGroupMap[storeConfig.groupConfig?.groupBy] : undefined;
       const searchRequests: Array<ReturnType<typeof fetchProductSearch>> = [];
 
@@ -250,7 +251,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
           categorySearch: !!categoryPath,
         }));
       } else {
-        // build an array of requests for every product type
+        // build an array of requests for every grouping filter
         groupByItem.forEach(() => {
           variables.pageSize = storeConfig.groupConfig?.size || 3;
           searchRequests.push(fetchProductSearch({
@@ -356,7 +357,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const getCategorySearchFilters = (
     categoryPath?: string[]): FacetFilter[] => {
     const filters: FacetFilter[] = [];
-    if (!categoryPath) {
+    if (!categoryPath || !categoryPath.length) {
       return filters;
     }
     //add category filters
