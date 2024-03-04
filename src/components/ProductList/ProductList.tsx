@@ -68,7 +68,7 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
     groupNames.push(firstProductType || 'Unknown product type');
   }
 
-    return (
+  return (
     <div
       {...otherProps}
       className={classNames(
@@ -112,8 +112,8 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
             const pageStart = (pageSize * (currentPage - 1)) + 1;
             const pageEnd = Math.min(pageStart + pageSize - 1, totalCount);
             return (
-              <div key={groupName} className="ds-sdk-product-list__list-view-default mt-md grid grid-cols-none pt-[15px] w-full gap-0">
-                <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px]">
+              <div key={groupName} className="ds-sdk-product-list__list-view-default grid grid-cols-none w-full gap-0">
+                <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px] rounded-t">
                   <h2 className='inline-flex leading-loose'>{groupName}</h2>
                   {isGroupedProducts(products) ? (
                     <p className='text-xxs'>{`(${groupProducts.length} of ${totalCount})`}</p>

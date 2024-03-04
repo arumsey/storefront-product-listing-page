@@ -57,7 +57,7 @@ export interface StoreDetailsConfig {
     options: [],
     quantity: number
   ) => Promise<void | undefined>;
-  onCategoryChange?: (category: string) => void;
+  onCategoryChange?: (category: Category) => void;
 }
 
 // Types

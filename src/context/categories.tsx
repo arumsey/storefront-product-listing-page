@@ -37,11 +37,10 @@ const CategoriesProvider: FunctionComponent = ({ children }) => {
   useEffect(() => {
     if (storeConfig.onCategoryChange && storeConfig.currentCategoryUrlPath) {
       const selectedCategory = getCategory(storeConfig.currentCategoryUrlPath, categories);
-      if (selectedCategory?.name) {
-        storeConfig.onCategoryChange(selectedCategory?.name);
+      if (selectedCategory) {
+        storeConfig.onCategoryChange(selectedCategory);
       }
     }
-
   }, [categories]);
 
   useEffect(() => {

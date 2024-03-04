@@ -86,7 +86,7 @@
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action
         route: ({ urlKey }) => `/${urlKey}`,
         onCategoryChange: (category) => {
-          document.title = category;
+          document.title = category.name;
         },
       },
       context: {
