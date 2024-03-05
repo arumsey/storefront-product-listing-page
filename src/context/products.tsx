@@ -25,7 +25,8 @@ import {
   DEFAULT_MIN_QUERY_LENGTH,
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGE_SIZE_OPTIONS,
-  SEARCH_SORT_DEFAULT, SONY_PRODUCT_TYPE,
+  SEARCH_SORT_DEFAULT,
+  SONY_PRODUCT_TYPE,
 } from '../utils/constants';
 import { moveToTop } from '../utils/dom';
 import {

@@ -30,7 +30,7 @@ export const App: FunctionComponent = () => {
   const productsCtx = useProducts();
   const {screenSize} = useSensor();
   const translation = useTranslation();
-  const { config: { displayMode, headerViews }} = useStore();
+  const { config: { displayMode, headerViews, listView }} = useStore();
   const [showFilters, setShowFilters] = useState(true);
 
   const loadingLabel = translation.Loading.title;
@@ -93,7 +93,11 @@ export const App: FunctionComponent = () => {
               )}
           </div>
           {productsCtx.loading ? (
-              <Loading label={loadingLabel}/>
+            screenSize.mobile ? (
+              <Loading label={loadingLabel} />
+            ) : (
+              <Shimmer listView={listView} />
+            )
           ) : (
             <>
               {!!headerViews.length && (
