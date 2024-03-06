@@ -11,6 +11,7 @@ it.
 
 import { FacetFilter, SearchClauseInput } from '../types/interface';
 import { DEFAULT_PAGE_SIZE } from '../utils/constants';
+import pagination from "../components/Pagination/Pagination";
 
 // if you add custom search query params, add them to this object
 const nonFilterKeys = {
@@ -94,15 +95,20 @@ const handleUrlPageSize = (pageSizeOption: number) => {
   window.history.pushState({}, '', `${url.pathname}?${params}`);
 };
 
-const handleUrlPagination = (pageNumber: number) => {
+const getPaginationUrl = (pageNumber: string | number) => {
+  const page = typeof pageNumber === 'string' ? parseInt(pageNumber, 10) : pageNumber;
   const url = new URL(window.location.href);
-  const params = new URLSearchParams(url.searchParams);
-  if (pageNumber === 1) {
-    params.delete('p');
+  if (page === 1) {
+    url.searchParams.delete('p');
   } else {
-    params.set('p', pageNumber.toString());
+    url.searchParams.set('p', `${page}`);
   }
-  window.history.pushState({}, '', `${url.pathname}?${params}`);
+  return url;
+}
+
+const handleUrlPagination = (pageNumber: number) => {
+  const url = getPaginationUrl(pageNumber);
+  window.history.pushState({}, '', `${url.pathname}?${url.searchParams}`);
 };
 
 const getFiltersFromUrl = (
@@ -160,6 +166,7 @@ export {
   getFiltersFromUrl,
   getValueFromUrl,
   handleUrlPageSize,
+  getPaginationUrl,
   handleUrlPagination,
   handleUrlSort,
   handleViewType,

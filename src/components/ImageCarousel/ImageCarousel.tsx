@@ -10,7 +10,7 @@ it.
 import { FunctionComponent } from 'preact';
 import { SetStateAction, useState } from 'react';
 
-import { Image } from './Image';
+import { Image } from '../Image';
 
 export interface ImageCarouselProps {
   images: string[] | { src: string; srcset: any }[];

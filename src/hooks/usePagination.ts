@@ -9,7 +9,7 @@ it.
 
 import { useMemo } from 'preact/compat';
 
-export const ELLIPSIS = '...';
+export const ELLIPSIS = '\u2026';
 
 const getRange = (start: number, end: number) => {
   const length = end - start + 1;

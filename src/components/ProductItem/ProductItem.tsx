@@ -182,6 +182,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                 href={productUrl as string}
                 onClick={onProductClick}
                 className="!text-primary hover:no-underline hover:text-primary w-[50px]"
+                aria-label={product.name}
               >
                 {/* Thumbnail */}
                 {productThumbnailUrl ? (
@@ -191,6 +192,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                       ? optimizedThumbnailArray[0]
                       : productThumbnailUrl}
                     alt={product.name}
+                    size={imageBaseWidth}
                   />
                 ) : (
                   <NoImage
