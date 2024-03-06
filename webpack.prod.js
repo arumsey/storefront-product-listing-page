@@ -15,7 +15,6 @@ module.exports = merge(commonConfig, {
         'https://catalog-service-sandbox.adobe.io/graphql'
       ),
       SANDBOX_KEY: JSON.stringify('storefront-widgets'),
-      MEDIA_HOST: JSON.stringify('https://www.sonybiotechnology.com'),
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
   ],

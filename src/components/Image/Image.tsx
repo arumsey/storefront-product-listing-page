@@ -5,36 +5,38 @@ import { useIntersectionObserver } from '../../utils/useIntersectionObserver';
 export const Image = ({
   image,
   alt,
-                        baseWidth
+  carouselIndex = 0,
+  index = 0,
 }: {
   image: { src: string; srcset: any } | string;
   alt: string;
-  baseWidth?: number;
+  carouselIndex?: number;
+  index?: number;
 }) => {
   const imageRef = useRef<HTMLImageElement>(null);
-  const [imageSrc, setImageSrc] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
   const entry = useIntersectionObserver(imageRef, { rootMargin: '200px' });
 
   useEffect(() => {
     if (!entry) return;
 
-    if (entry?.isIntersecting) {
-      setImageSrc((entry?.target as HTMLElement)?.dataset.src || '');
+    if (entry?.isIntersecting && index === carouselIndex) {
+      setIsVisible(true);
+      setImageUrl((entry?.target as HTMLElement)?.dataset.src || '');
     }
   }, [entry, image]);
 
-  const imageUrl = typeof image === 'object' ? image.src : image;
-
   return (
     <img
-      className={`aspect-auto w-100 h-auto`}
+      className={`aspect-auto w-100 h-auto ${
+        isVisible ? 'visible' : 'invisible'
+      }`}
       ref={imageRef}
-      src={imageSrc}
-      data-src={imageUrl}
+      src={imageUrl}
+      data-src={typeof image === 'object' ? image.src : image}
       srcset={typeof image === 'object' ? image.srcset : null}
       alt={alt}
-      width={baseWidth}
-      height={baseWidth}
     />
   );
 };

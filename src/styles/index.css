@@ -843,6 +843,9 @@ video {
   .gap-1 {
     gap: 0.25rem;
   }
+  .gap-8 {
+    gap: 2rem;
+  }
   .gap-\[10px\] {
     gap: 10px;
   }
@@ -1098,6 +1101,9 @@ video {
   }
   .pt-md {
     padding-top: var(--spacing-md);
+  }
+  .pt-sm {
+    padding-top: var(--spacing-sm);
   }
   .text-left {
     text-align: left;
@@ -1384,7 +1390,7 @@ video {
 }
 
 .loading-spinner-on-mobile {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

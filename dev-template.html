@@ -41,6 +41,11 @@
     .ds-sdk-product-item__product-name {
       text-transform: uppercase;
     }
+
+    .search-plp-root {
+      position: relative;
+      min-height: 100vh;
+    }
   </style>
 
   <script type="text/javascript" src="search.js"></script>
@@ -48,12 +53,11 @@
   <script type="text/javascript">
     const root = document.querySelector('div.search-plp-root');
     const storeDetails = {
-      environmentId: '9f4deb06-1119-403b-ad4d-4f72d32d311e',
+      environmentId: '7dbfa0d8-8e6f-4abf-b932-4c2bee19d067',
       websiteCode: 'us',
       storeCode: 'main_website_store',
       storeViewCode: 'us',
-      apiKey: 'c239b4de01ed4e72bfbaba2620b15547',
-      mediaHost: encodeURI('https://www.sonybiotechnology.com'),
+      apiKey: 'b06dd0204a474eacb8afcc5e5965587c',
       config: {
         pageSize: 10,
         perPageConfig: {
@@ -79,8 +83,8 @@
         // priceSlider: false, //enable slider for price - EXPERIMENTAL, default is false
         // imageCarousel: false, //enable multiple image carousel - EXPERIMENTAL, default is false
         listView: true, //add listview as an option - EXPERIMENTAL, default is false
-        optimizeImages: true, // optimize images with Fastly
-        imageBaseWidth: 50,
+        optimizeImages: false, // optimize images with Fastly
+        resolveMediaUrl: (url) => url.replace(/^http.*\/media\/catalog\/product/, 'https://d2bnvy3bkk7l58.cloudfront.net/catalog/product/resizedlist/50x50'),
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension
         // refreshCart?: refreshCart, // Luma specific addToCart method. Enabled with the extension
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action

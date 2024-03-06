@@ -99,7 +99,6 @@ describe('test validating storeDetails.', () => {
       },
       apiKey: 'storefront-catalog-apollo',
       apiUrl: '',
-      mediaHost: '',
       environmentType: '',
       shouldGetRemoved: 'should not belong here',
     };
@@ -130,7 +129,6 @@ describe('test validating storeDetails.', () => {
       },
       apiKey: 'storefront-catalog-apollo',
       apiUrl: '',
-      mediaHost: '',
       environmentType: '',
     };
 

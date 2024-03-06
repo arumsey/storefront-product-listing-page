@@ -26,7 +26,6 @@ interface StoreProps extends WithChildrenProps {
   context?: QueryContextInput;
   apiUrl: string;
   apiKey: string;
-  mediaHost: string;
 }
 
 const StoreContext = createContext<StoreProps>({
@@ -37,7 +36,6 @@ const StoreContext = createContext<StoreProps>({
   storeViewCode: '',
   apiUrl: '',
   apiKey: '',
-  mediaHost: '',
   config: {
     headerViews: ['search', 'sort'],
     route: undefined,
@@ -63,7 +61,6 @@ const StoreContextProvider = ({
         config,
         context,
         apiKey,
-        mediaHost,
       } = storeProps;
 
       return {
@@ -82,7 +79,6 @@ const StoreContextProvider = ({
           environmentType?.toLowerCase() === 'testing' && !apiKey
             ? SANDBOX_KEY
             : apiKey,
-        mediaHost: mediaHost ? mediaHost : MEDIA_HOST,
       }
     },
     [storeProps]

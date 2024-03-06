@@ -10,7 +10,6 @@ const validStoreDetailsKeys: Array<keyof StoreProps> = [
   'context',
   'apiUrl',
   'apiKey',
-  'mediaHost',
 ];
 
 export const sanitizeString = (value: unknown) => {

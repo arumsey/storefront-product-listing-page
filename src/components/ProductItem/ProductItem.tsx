@@ -73,8 +73,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const { addToCartGraphQL, refreshCart } = useCart();
   const { viewType } = useProducts();
   const {
-    mediaHost,
-    config: { optimizeImages, imageBaseWidth, imageCarousel, listView },
+    config: { optimizeImages, imageBaseWidth, imageCarousel, listView, resolveMediaUrl = (url) => url },
   } = useStore();
 
   const { screenSize } = useSensor();
@@ -99,14 +98,13 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     return selectedSwatch ? selectedSwatch === id : false;
   };
 
-  const productImageArray = (imagesFromRefinedProduct
-    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1, undefined, mediaHost)
+  const productImageArray: string[] = (imagesFromRefinedProduct
+    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1, undefined)
     : getProductImageURLs(
         productView.images ?? [],
         imageCarousel ? 3 : 1, // number of images to display in carousel
-        product.image?.url ?? undefined,
-         mediaHost
-      ));
+        product.image?.url ?? undefined
+      )).map(resolveMediaUrl);
 
   let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
@@ -116,9 +114,10 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   }
 
-  const productThumbnailUrl = getImageUrl(product.thumbnail, mediaHost);
+  let productThumbnailUrl = getImageUrl(product.thumbnail);
   let optimizedThumbnailArray: { src: string; srcset: any }[] = [];
   if (productThumbnailUrl) {
+    productThumbnailUrl = resolveMediaUrl(productThumbnailUrl);
     if (optimizeImages) {
       optimizedThumbnailArray = generateOptimizedImages(
         [productThumbnailUrl],
@@ -192,7 +191,6 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                       ? optimizedThumbnailArray[0]
                       : productThumbnailUrl}
                     alt={product.name}
-                    baseWidth={imageBaseWidth}
                   />
                 ) : (
                   <NoImage

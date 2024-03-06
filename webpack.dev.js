@@ -18,7 +18,6 @@ module.exports = merge(commonConfig, {
         'https://catalog-service-sandbox.adobe.io/graphql'
       ),
       SANDBOX_KEY: JSON.stringify('storefront-widgets'),
-      MEDIA_HOST: JSON.stringify('https://www.sonybiotechnology.com'),
     }),
     new HtmlWebpackPlugin({
       title: 'Sony Biotech Storefront',

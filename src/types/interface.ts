@@ -29,6 +29,7 @@ export interface ClientProps {
 }
 
 export interface StoreDetailsConfig {
+  searchQuery?: string; // 'q' default search query param if not provided.
   allowAllProducts?: string | boolean;
   perPageConfig?: { pageSizeOptions?: string; defaultPageSizeOption?: string };
   minQueryLength?: string | number; // string if used on magento, number if used on data-service-graphql
@@ -48,8 +49,8 @@ export interface StoreDetailsConfig {
   imageCarousel?: boolean;
   optimizeImages?: boolean;
   imageBaseWidth?: number;
+  resolveMediaUrl?: (url: string) => string;
   route?: RedirectRouteFunc; // optional product redirect func prop
-  searchQuery?: string; // 'q' default search query param if not provided.
   resolveCartId?: () => Promise<string | undefined>;
   refreshCart?: () => void;
   addToCart?: (

@@ -14,36 +14,26 @@ const removeProtocol = (url?: string | null): string | undefined => {
   return url?.replace(/^https?:/, '').replace(/^\/\//, '');
 }
 
-const getImagePathname = (url: string): string => {
-  return new URL(url).pathname;
-}
-
 const getImageUrl = (
   image: ProductMedia | ProductViewMedia | null,
-  host?: string
 ): string | undefined => {
   if (!image) {
     return undefined;
   }
   const protocol = new URL(window.location.href).protocol;
-  let imageUrl = removeProtocol(image.url);
-  imageUrl = imageUrl ? `${protocol}//${imageUrl}` : undefined;
-  if (host && imageUrl) {
-    imageUrl = `${host}${getImagePathname(imageUrl)}`;
-  }
-  return imageUrl;
+  const imageUrl = removeProtocol(image.url);
+  return imageUrl ? `${protocol}//${imageUrl}` : undefined;
 };
 
 
 const getProductImageURLs = (
   images: ProductViewMedia[],
   amount: number = 3,
-  topImageUrl?: string,
-  host?: string
+  topImageUrl?: string
 ): string[] => {
   // map images to full URLs
   const imageUrlArray: string[] = images
-    .map((image) => getImageUrl(image, host))
+    .map((image) => getImageUrl(image))
     .filter((url): url is string => isDefined<string>(url));
 
   if (topImageUrl) {
