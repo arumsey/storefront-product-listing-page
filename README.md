@@ -1,4 +1,4 @@
-# storefront-product-listing-page
+# Sony Product Listing Page Storefront
 
 ## Product Listing Page for Adobe Commerce Storefronts using Live Search
 
