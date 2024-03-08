@@ -10,8 +10,6 @@ it.
 import { FunctionComponent } from 'preact';
 import { useState } from 'preact/hooks';
 
-import '../ProductItem/ProductItem.css';
-
 import { useCart, useProducts, useSensor, useStore } from '../../context';
 import NoImage from '../../icons/NoImage.svg';
 import {
