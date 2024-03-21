@@ -23,9 +23,10 @@ const getSortOptionsFromMetadata = (
   translation: Language,
   sortMetadata: SortMetadata[],
   displayOutOfStock?: string | boolean,
-  categoryPath?: OptionalArray<string>
+  categoryPath?: OptionalArray<string>,
+  categoryId?: string,
 ): SortOption[] => {
-  const sortOptions = categoryPath && !Array.isArray(categoryPath)
+  const sortOptions = (categoryPath && !Array.isArray(categoryPath)) || categoryId
     ? [
         {
           label: translation.SortDropdown.positionLabel,

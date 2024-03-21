@@ -63,7 +63,8 @@ export const ProductsHeader: FunctionComponent<Props> = ({
         translation,
         attributeMetadata?.sortable,
         storeConfig?.displayOutOfStock,
-        storeConfig?.currentCategoryUrlPath
+        storeConfig?.currentCategoryUrlPath,
+        storeConfig?.currentCategoryId
       )
     );
   }, [storeConfig, translation, attributeMetadata]);
@@ -72,7 +73,7 @@ export const ProductsHeader: FunctionComponent<Props> = ({
     getSortOptions();
   }, [getSortOptions]);
 
-  const defaultSortOption = storeConfig?.currentCategoryUrlPath
+  const defaultSortOption = storeConfig?.currentCategoryUrlPath || storeConfig?.currentCategoryId
     ? 'position_ASC'
     : 'relevance_DESC';
 

@@ -100,25 +100,27 @@ export const ProductList: FunctionComponent<ProductListProps> = ({
       {listView && viewType === 'listview' && (
         <div className="w-full">
           {groupNames.map((groupName) => {
-            const typeId = '16146';
             const viewMoreUrl = new URL(window.location.href);
-            viewMoreUrl.searchParams.set(SONY_PRODUCT_TYPE, typeId);
+            viewMoreUrl.searchParams.set(SONY_PRODUCT_TYPE, groupName);
             let groupProducts: Product[] = [];
+            let groupCount: number = 0;
             if (isGroupedProducts(products)) {
-              groupProducts = products[groupName] || [];
+              groupProducts = products[groupName].items || [];
+              groupCount = products[groupName].total_count || 0;
             } else {
               groupProducts = products || [];
+              groupCount = totalCount;
             }
             const pageStart = (pageSize * (currentPage - 1)) + 1;
-            const pageEnd = Math.min(pageStart + pageSize - 1, totalCount);
+            const pageEnd = Math.min(pageStart + pageSize - 1, groupCount);
             return (
               <div key={groupName} className="ds-sdk-product-list__list-view-default grid grid-cols-none w-full gap-0">
                 <div className="flex flex-row gap-1 items-center bg-gray-200 p-[6px] rounded-t">
                   <h2 className='inline-flex leading-loose'>{groupName}</h2>
                   {isGroupedProducts(products) ? (
-                    <p className='text-xxs'>{`(${groupProducts.length} of ${totalCount})`}</p>
+                    <p className='text-xxs'>{`(${groupProducts.length} of ${groupCount})`}</p>
                   ) : (
-                    <p className='text-xxs'>{`(${pageStart} to ${pageEnd} of ${totalCount})`}</p>
+                    <p className='text-xxs'>{`(${pageStart} to ${pageEnd} of ${groupCount})`}</p>
                   )}
                   {isGroupedProducts(products) && <a href={viewMoreUrl.toString()} className='text-xxs text-white bg-primary rounded p-[4px]'>View more&nbsp;→</a>}
                 </div>
