@@ -45,21 +45,22 @@ export const App: FunctionComponent = () => {
     <div className="ds-widgets bg-body py-2">
       {renderFilterView ? (
         <div className="flex">
-          <CategoryFilters
-            loading={productsCtx.loading}
-            pageLoading={productsCtx.pageLoading}
-            facets={productsCtx.facets}
-            totalCount={productsCtx.totalCount}
-            categoryName={productsCtx.categoryName ?? ''}
-            phrase={productsCtx.variables.phrase ?? ''}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            filterCount={searchCtx.filterCount}
-          />
+          <div className="flex flex-col">
+            <SelectedFilters hideClearAll={true} direction="vertical"/>
+            <CategoryFilters
+              loading={productsCtx.loading}
+              pageLoading={productsCtx.pageLoading}
+              facets={productsCtx.facets}
+              totalCount={productsCtx.totalCount}
+              categoryName={productsCtx.categoryName ?? ''}
+              phrase={productsCtx.variables.phrase ?? ''}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              filterCount={searchCtx.filterCount}
+            />
+          </div>
         <div
-          className={`ds-widgets_results flex flex-col items-center ${
-            productsCtx.categoryName ? 'pt-16' : 'pt-28'
-          } w-full h-full`}
+          className={`ds-widgets_results flex flex-col items-center w-full h-full`}
         >
           {!!headerViews.length && (
             <ProductsHeader
@@ -68,7 +69,6 @@ export const App: FunctionComponent = () => {
               screenSize={screenSize}
             />
           )}
-          <SelectedFilters/>
           <ProductsContainer showFilters={showFilters}/>
         </div>
       </div>
