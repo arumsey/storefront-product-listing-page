@@ -15,7 +15,7 @@ import { formatBinaryLabel, formatRangeLabel } from './format';
 
 type SelectedFiltersProps = {
   hideClearAll?: boolean;
-  direction?: "horizontal" | "vertical";
+  direction?: 'horizontal' | 'vertical';
 }
 
 export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ hideClearAll, direction = "horizontal" }) => {
@@ -26,7 +26,7 @@ export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ hideC
   return (
     <div className="w-full">
       {searchCtx.filters?.length > 0 && (
-        <div className={`ds-plp-facets__pills pb-6 sm:pb-6 flex ${direction === "horizontal" ? "flex-row" : "flex-col"} flex-wrap justify-start`}>
+        <div className={`ds-plp-facets__pills pb-6 sm:pb-6 flex ${direction === 'horizontal' ? 'flex-row' : 'flex-col'} flex-wrap justify-start`}>
           {searchCtx.filters.map((filter) => (
             <Fragment key={filter.attribute}>
               {filter.in?.map((option) => (
