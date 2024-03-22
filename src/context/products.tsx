@@ -39,7 +39,6 @@ import { useSearch } from './search';
 import { useStore } from './store';
 import { useTranslation } from './translation';
 import { useCategories } from "./categories";
-import { sonyGroupMap } from "../api/groups";
 import { getProductAttribute } from "../utils/getProductAttribute";
 
 export type ViewType = 'gridview' | 'listview' | '';
@@ -74,6 +73,7 @@ type ProductsContextType = {
   pageLoading: boolean;
   setPageLoading: (loading: boolean) => void;
   categoryPath: string | undefined;
+  categoryId: string | undefined;
   viewType: ViewType;
   setViewType: (viewType: ViewType) => void;
   listViewType: string;
@@ -120,6 +120,7 @@ const ProductsContext = createContext<ProductsContextType>({
   pageLoading: false,
   setPageLoading: () => {},
   categoryPath: undefined,
+  categoryId: undefined,
   viewType: '',
   setViewType: () => {},
   listViewType: '',
@@ -182,6 +183,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       categoryUrlList = buildCategoryList(startCategory.id).map((cat) => cat.urlPath);
     }
   }
+  const categoryId = storeConfig?.currentCategoryId;
 
   const [viewType, setViewType] = useState<ViewType>('listview');
   const [listViewType, setListViewType] = useState<string>('default');
@@ -224,7 +226,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       setLoading(true);
       moveToTop();
 
-      const categoryFilters = getCategorySearchFilters(categoryUrlList);
+      const categoryFilters = getCategorySearchFilters(categoryUrlList, categoryId);
       const filters = [...variables.filter, ...categoryFilters];
 
       if (categoryUrlList.length === 1) {
@@ -234,69 +236,75 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
         }
       }
 
+      const data = await fetchProductSearch({
+        ...variables,
+        ...storeCtx,
+        apiUrl: storeCtx.apiUrl,
+        filter: filters,
+        categorySearch: !!categoryPath || !!categoryId,
+      });
+
+      const { groupConfig = { groupBy: '', size: 3, ignore: []} } = storeConfig;
       const shouldUseGrouping = !variables.phrase
-        && filters.every((facet) => facet.attribute !== storeConfig.groupConfig?.groupBy);
-      const groupByItem = storeConfig.groupConfig?.groupBy ? sonyGroupMap[storeConfig.groupConfig?.groupBy] : undefined;
+        && filters.every((facet) => facet.attribute !== groupConfig.groupBy);
+      const groupByFacet = groupConfig.groupBy
+        ? (data?.productSearch.facets || []).find((facet) => facet.attribute === groupConfig.groupBy)
+        : undefined;
+      const groupByBuckets = groupByFacet?.buckets || [];
       const searchRequests: Array<ReturnType<typeof fetchProductSearch>> = [];
 
-      //TODO: remove sonybt_product_type from filters until supported by backend
-      const tempFilters = filters.filter((facet) => facet.attribute !== SONY_PRODUCT_TYPE);
-
-      if (!shouldUseGrouping || !groupByItem) {
-        // single product search request
-        searchRequests.push(fetchProductSearch({
-          ...variables,
-          ...storeCtx,
-          apiUrl: storeCtx.apiUrl,
-          filter: tempFilters,
-          categorySearch: !!categoryPath,
-        }));
-      } else {
+      if (shouldUseGrouping && groupByFacet) {
         // build an array of requests for every grouping filter
-        groupByItem.forEach(() => {
-          variables.pageSize = storeConfig.groupConfig?.size || 3;
-          searchRequests.push(fetchProductSearch({
-            ...variables,
-            ...storeCtx,
-            apiUrl: storeCtx.apiUrl,
-            filter: [...tempFilters],
-            categorySearch: !!categoryPath,
-          }));
+        groupByBuckets.forEach((bucketItem) => {
+          if (!groupConfig.ignore.includes(bucketItem.title)) {
+            variables.pageSize = groupConfig.size;
+            searchRequests.push(fetchProductSearch({
+              ...variables,
+              ...storeCtx,
+              apiUrl: storeCtx.apiUrl,
+              filter: [...filters, {
+                attribute: groupByFacet.attribute,
+                eq: bucketItem.title,
+              }],
+              categorySearch: !!categoryPath,
+            }));
+          }
         })
       }
 
-      const data = await Promise.allSettled(searchRequests);
-      const fulfilledData = data
+      const groupData = await Promise.allSettled(searchRequests);
+      const fulfilledData = groupData
         .filter((result): result is PromiseFulfilledResult<ProductSearchResponse['data']> => result.status === 'fulfilled')
         .map((fulfilled) => fulfilled.value)
 
-      if (fulfilledData.length === 1) {
-        const [fulfilledItem] = fulfilledData;
-        setItems(fulfilledItem?.productSearch?.items || []);
-      } else {
+      if (fulfilledData.length > 0) {
         const groupedProducts = fulfilledData.reduce<GroupedProducts>((groups, data) => {
           const groupProducts = data?.productSearch?.items || [];
           const [sampleProduct] = groupProducts;
           if (sampleProduct) {
-            const groupName = getProductAttribute(sampleProduct, storeConfig.groupConfig?.groupBy || '')
-            groups[groupName] = groupProducts;
+            const groupName = getProductAttribute(sampleProduct, groupConfig.groupBy)
+            groups[groupName] = {
+              total_count: data?.productSearch?.total_count || 0,
+              items: groupProducts,
+            };
           }
           return groups;
         }, {});
         setItems(groupedProducts);
+      } else {
+        setItems(data?.productSearch?.items || []);
       }
 
-      const firstItem = fulfilledData[0];
-      setFacets(firstItem?.productSearch?.facets || []);
-      setTotalCount(firstItem?.productSearch?.total_count || 0);
-      setTotalPages(firstItem?.productSearch?.page_info?.total_pages || 1);
-      handleCategoryNames(firstItem?.productSearch?.facets || []);
+      setFacets(data?.productSearch?.facets || []);
+      setTotalCount(data?.productSearch?.total_count || 0);
+      setTotalPages(data?.productSearch?.page_info?.total_pages || 1);
+      handleCategoryNames(data?.productSearch?.facets || []);
 
-      getPageSizeOptions(firstItem?.productSearch?.total_count);
+      getPageSizeOptions(data?.productSearch?.total_count);
 
       paginationCheck(
-        firstItem?.productSearch?.total_count,
-        firstItem?.productSearch?.page_info?.total_pages
+        data?.productSearch?.total_count,
+        data?.productSearch?.page_info?.total_pages
       );
 
     } finally {
@@ -308,6 +316,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const checkMinQueryLength = () => {
     if (
       !storeConfig?.currentCategoryUrlPath &&
+      !storeConfig?.currentCategoryId &&
       searchCtx.phrase.trim().length <
         (Number(storeConfig?.minQueryLength) || DEFAULT_MIN_QUERY_LENGTH)
     ) {
@@ -356,22 +365,33 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   };
 
   const getCategorySearchFilters = (
-    categoryPath?: string[]): FacetFilter[] => {
+    categoryPath?: string[],
+    categoryId?: string,
+    ): FacetFilter[] => {
     const filters: FacetFilter[] = [];
-    if (!categoryPath || !categoryPath.length) {
+    if ((!categoryPath || !categoryPath.length) && !categoryId) {
       return filters;
     }
     //add category filters
-    if (categoryPath.length === 1) {
-      filters.push({
-        attribute: 'categoryPath',
-        eq: categoryPath[0],
-      });
-    } else {
-      filters.push({
-        attribute: 'categoryPath',
-        in: categoryPath,
-      });
+    if (categoryPath && categoryPath.length) {
+      if (categoryPath.length === 1) {
+        filters.push({
+          attribute: 'categoryPath',
+          eq: categoryPath[0],
+        });
+      } else {
+        filters.push({
+          attribute: 'categoryPath',
+          in: categoryPath,
+        });
+      }
+    }
+    if (categoryId) {
+      const categoryIdFilter = {
+        attribute: 'categoryIds',
+        eq: categoryId,
+      };
+      filters.push(categoryIdFilter);
     }
 
     return filters;
@@ -446,6 +466,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     pageLoading,
     setPageLoading,
     categoryPath,
+    categoryId,
     viewType,
     setViewType,
     listViewType,

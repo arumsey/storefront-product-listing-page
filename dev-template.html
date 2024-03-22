@@ -14,6 +14,11 @@
   />
 
   <script
+          type="text/javascript"
+          src="https://unpkg.com/@adobe/adobe-client-data-layer@2.0.2/dist/adobe-client-data-layer.min.js"
+  ></script>
+
+  <script
     type="text/javascript"
     src="https://unpkg.com/@adobe/magento-storefront-events-sdk@qa/dist/index.js"
   ></script>
@@ -53,9 +58,10 @@
   <script type="text/javascript">
     const root = document.querySelector('div.search-plp-root');
     const storeDetails = {
+      apiUrl: 'https://aemstage.sonybiotechnology.com/cs-graphql',
       environmentId: '7dbfa0d8-8e6f-4abf-b932-4c2bee19d067',
       websiteCode: 'us',
-      storeCode: 'main_website_store',
+      storeCode: 'us',
       storeViewCode: 'us',
       apiKey: 'b06dd0204a474eacb8afcc5e5965587c',
       config: {
@@ -69,12 +75,14 @@
         currencyRate: '1',
         displayOutOfStock: true,
         allowAllProducts: false,
-        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents',
+        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents/anti-human-antibodies',
+        // currentCategoryId?: '', // current category id
         // categoryName: '', // name of category to display
         headerViews: [],
         groupConfig: {
           groupBy: 'sonybt_product_type',
           size: 3,
+          ignore: ['N/A'],
         },
         displaySearchBox: false, // display search box
         // displayOutOfStock: '', // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
@@ -95,50 +103,39 @@
         },
       },
       context: {
-        customerGroup: '0',
+        customerGroup: '1',
       },
       environmentType: '',
       // searchQuery: 'search_query', // Optional: providing searchQuery will override 'q' query param
     };
 
-    const mse = window.magentoStorefrontEvents;
-
-    mse.context.setMagentoExtension({
-      magentoExtensionVersion: '1.0.0',
-    });
-    mse.context.setSearchExtension({
-      version: '2.0.3',
-    });
-    mse.context.setShopper({ shopperId: 'logged-in' });
-
-    mse.context.setPage({
-      pageType: 'plp',
-      maxXOffset: 0,
-      maxYOffset: 0,
-      minXOffset: 0,
-      minYOffset: 0,
-      ping_interval: 5,
-      pings: 1,
-    });
-
-    mse.context.setStorefrontInstance({
-      environmentId: '',
-      instanceId: 'bbbbbb',
-      environment: 'ccccccc',
-      storeUrl: '',
-      websiteId: 123456,
-      websiteCode: '',
-      storeId: 123456,
-      storeCode: '',
-      storeViewId: 123456,
-      storeViewCode: '',
-      websiteName: '',
-      storeName: '',
-      storeViewName: '',
-      baseCurrencyCode: 'USD',
-      storeViewCurrencyCode: 'USD',
-      catalogExtensionVersion: '1.0.0',
-    });
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push(
+            { 'magentoExtensionContext': { magentoExtensionVersion: '1.0.0' } },
+            { 'searchExtensionContext': { version: '2.0.3'} },
+            { 'shopperContext': { shopperId: 'logged-in' } },
+            { 'pageContext': { pageType: 'plp', maxXOffset: 0, maxYOffset: 0, minXOffset: 0, minYOffset: 0, ping_interval: 5, pings: 1 } },
+            {
+              'storefrontInstanceContext': {
+                environmentId: '',
+                instanceId: 'bbbbbb',
+                environment: 'ccccccc',
+                storeUrl: '',
+                websiteId: 123456,
+                websiteCode: '',
+                storeId: 123456,
+                storeCode: '',
+                storeViewId: 123456,
+                storeViewCode: '',
+                websiteName: '',
+                storeName: '',
+                storeViewName: '',
+                baseCurrencyCode: 'USD',
+                storeViewCurrencyCode: 'USD',
+                catalogExtensionVersion: '1.0.0',
+              }
+            }
+    );
 
     setTimeout(async () => {
       while (typeof window.LiveSearchPLP !== 'function') {

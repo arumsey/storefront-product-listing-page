@@ -37,8 +37,9 @@ export interface StoreDetailsConfig {
   currencySymbol?: string;
   currencyRate?: string;
   currentCategoryUrlPath?: string;
+  currentCategoryId?: string;
   categoryName?: string;
-  groupConfig?: { groupBy: string; size: number; };
+  groupConfig?: { groupBy: string; size: number; ignore: string[]; };
   headerViews: Array<'search' | 'switch' | 'sort'>;
   displaySearchBox?: boolean;
   displayOutOfStock?: string | boolean; // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
@@ -97,6 +98,7 @@ export interface ProductSearchQuery {
   context?: QueryContextInput;
   data?: QueryData;
   categorySearch?: boolean;
+  categoryId?: string;
 }
 
 export interface CategoriesQuery {
@@ -240,7 +242,10 @@ export interface Product {
   highlights: Array<Highlights>;
 }
 
-export type GroupedProducts = Record<string, Product[]>;
+export type GroupedProducts = Record<string, {
+  total_count: null | number;
+  items: Product[];
+}>;
 
 export interface RefinedProduct {
   refineProduct: {
@@ -358,24 +363,25 @@ export interface Facet {
   buckets: Array<RangeBucket | ScalarBucket | StatsBucket | CategoryView>;
 }
 
-export interface RangeBucket {
-  __typename: 'RangeBucket';
+interface AnyBucket {
   title: string;
+}
+
+export interface RangeBucket extends AnyBucket {
+  __typename: 'RangeBucket';
   from: number;
   to: number;
   count: number;
 }
 
-export interface ScalarBucket {
+export interface ScalarBucket extends AnyBucket {
   __typename: 'ScalarBucket';
-  title: string;
   id?: string;
   count: number;
 }
 
-export interface StatsBucket {
+export interface StatsBucket extends AnyBucket {
   __typename: 'StatsBucket';
-  title: string;
   min: number;
   max: number;
 }

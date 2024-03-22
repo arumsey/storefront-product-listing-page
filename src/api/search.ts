@@ -23,7 +23,9 @@ import {
 } from '../types/interface';
 import { SEARCH_UNIT_ID } from '../utils/constants';
 import {
-  ATTRIBUTE_METADATA_QUERY, CATEGORIES_QUERY,
+  ATTRIBUTE_METADATA_QUERY,
+  CATEGORIES_QUERY,
+  CATEGORY_QUERY,
   PRODUCT_SEARCH_QUERY,
   REFINE_PRODUCT_QUERY,
 } from './queries';
@@ -57,6 +59,7 @@ const fetchProductSearch = async ({
   sort = [],
   context,
   categorySearch = false,
+  categoryId,
 }: ProductSearchQuery & ClientProps): Promise<
   ProductSearchResponse['data']
 > => {
@@ -67,6 +70,7 @@ const fetchProductSearch = async ({
     currentPage,
     filter: [...filter],
     sort,
+    categoryId,
     context,
   };
 
@@ -116,22 +120,19 @@ const fetchProductSearch = async ({
     sort
   );
 
-  const magentoStorefrontEvtPublish = window.magentoStorefrontEvents?.publish;
-
-  magentoStorefrontEvtPublish?.searchRequestSent &&
-    magentoStorefrontEvtPublish.searchRequestSent(SEARCH_UNIT_ID);
   // ======  end of data collection =====
 
+  const query = categorySearch && categoryId ? CATEGORY_QUERY : PRODUCT_SEARCH_QUERY;
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      query: PRODUCT_SEARCH_QUERY,
+      query: query.replace(/(?:\r\n|\r|\n|\t|[\s]{4})/g, ' ').replace(/\s\s+/g, ' '),
       variables: { ...variables },
     }),
   });
-
   const results = await response.json();
+
   // ======  initialize data collection =====
   updateSearchResultsCtx(
     SEARCH_UNIT_ID,
@@ -139,15 +140,19 @@ const fetchProductSearch = async ({
     results?.data?.productSearch
   );
 
-  magentoStorefrontEvtPublish?.searchResponseReceived &&
-    magentoStorefrontEvtPublish.searchResponseReceived(SEARCH_UNIT_ID);
+  window.adobeDataLayer.push((dl : any) => {
+    dl.push({ event: 'search-response-received', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+  });
 
-  if (categorySearch) {
-    magentoStorefrontEvtPublish?.categoryResultsView &&
-      magentoStorefrontEvtPublish.categoryResultsView(SEARCH_UNIT_ID);
+  if (categorySearch && categoryId) {
+    window.adobeDataLayer.push((dl : any) => {
+      dl.push({ categoryContext: results?.data?.categories?.[0] });
+      dl.push({ event: 'category-results-view', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+    });
   } else {
-    magentoStorefrontEvtPublish?.searchResultsView &&
-      magentoStorefrontEvtPublish.searchResultsView(SEARCH_UNIT_ID);
+    window.adobeDataLayer.push((dl : any) => {
+      dl.push({ event: 'search-results-view', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+    });
   }
   // ======  end of data collection =====
 
