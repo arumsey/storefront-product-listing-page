@@ -36,12 +36,12 @@ const useCart = (): CartAttributesContext => {
 const CartProvider: FunctionComponent = ({ children }) => {
   const [cart, setCart] = useState<CartProps>({ cartId: '' });
   const { refreshCart, resolveCartId } = useProducts();
-  const { storeViewCode } = useStore();
+  const { storeViewCode , commerceUrl } = useStore();
 
   const initializeCustomerCart = async (): Promise<string> => {
     let cartId = '';
     if (!resolveCartId) {
-      const customerResponse = await getGraphQL(GET_CUSTOMER_CART);
+      const customerResponse = await getGraphQL({ query: GET_CUSTOMER_CART, commerceUrl });
       cartId = customerResponse?.data.customerCart?.id ?? '';
     } else {
       cartId = (await resolveCartId()) ?? '';
@@ -67,7 +67,9 @@ const CartProvider: FunctionComponent = ({ children }) => {
       cartItems,
     };
 
-    const response = await getGraphQL(ADD_TO_CART, variables, storeViewCode);
+    const response = await getGraphQL({
+      query: ADD_TO_CART, variables, store: storeViewCode, commerceUrl
+    });
 
     return response;
   };

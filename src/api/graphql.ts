@@ -1,7 +1,7 @@
-const graphqlEndpoint = `${window.origin}/graphql`;
-
-async function getGraphQL(query = '', variables = {}, store = '') {
-  const response = await fetch(graphqlEndpoint, {
+async function getGraphQL({
+  query = '', variables = {}, store = '', commerceUrl = `${window.origin}/graphql`
+}) {
+  const response = await fetch(commerceUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Store: store },
     body: JSON.stringify({
