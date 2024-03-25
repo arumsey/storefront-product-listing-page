@@ -31,7 +31,7 @@ export const CategoryFilters: FunctionComponent<CategoryFiltersProps> = ({
   facets,
 }) => {
   return (
-    <div class="sm:flex ds-widgets-_actions relative max-w-[21rem] w-full h-full px-2 flex-col overflow-y-auto">
+    <div class="ds-widgets-_actions sm:flex relative max-w-[21rem] w-full px-2 flex-col overflow-y-auto">
       {!pageLoading && facets.length > 0 && (
         <Facets searchFacets={facets} />
       )}

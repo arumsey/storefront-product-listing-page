@@ -14,11 +14,10 @@ import Pill from '../Pill';
 import { formatBinaryLabel, formatRangeLabel } from './format';
 
 type SelectedFiltersProps = {
-  hideClearAll?: boolean;
   direction?: 'horizontal' | 'vertical';
 }
 
-export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ hideClearAll, direction = "horizontal" }) => {
+export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ direction = "horizontal" }) => {
   const searchCtx = useSearch();
   const productsCtx = useProducts();
   const translation = useTranslation();
@@ -62,17 +61,15 @@ export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ hideC
               )}
             </Fragment>
           ))}
-          {!hideClearAll && (
-            <div className="py-1">
-              <button
-                className="ds-plp-facets__header__clear-all border-none bg-transparent hover:border-none	hover:bg-transparent
-                focus:border-none focus:bg-transparent active:border-none active:bg-transparent active:shadow-none text-sm px-4"
-                onClick={() => searchCtx.clearFilters()}
-              >
-                {translation.Filter.clearAll}
-              </button>
-            </div>
-          )}
+          <div className="py-1">
+            <button
+              className="ds-plp-facets__header__clear-all pt-md border-none bg-transparent hover:border-none hover:bg-transparent
+              focus:border-none focus:bg-transparent active:border-none active:bg-transparent active:shadow-none text-primary text-sm px-4"
+              onClick={() => searchCtx.clearFilters()}
+            >
+              {translation.Filter.clearAll}
+            </button>
+          </div>
         </div>
       )}
     </div>

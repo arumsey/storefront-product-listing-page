@@ -71,7 +71,13 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const { addToCartGraphQL, refreshCart } = useCart();
   const { viewType } = useProducts();
   const {
-    config: { optimizeImages, imageBaseWidth, imageCarousel, listView, resolveMediaUrl = (url) => url },
+    config: {
+      optimizeImages,
+      imageBaseWidth,
+      imageCarousel,
+      listView,
+      isSignedIn,
+      resolveMediaUrl = (url) => url },
   } = useStore();
 
   const { screenSize } = useSensor();
@@ -238,7 +244,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
           </td>
           <td>
             <div className="w-[50px] h-[38px]">
-              <AddToCartButton onClick={handleAddToCart} />
+              <AddToCartButton variant={isSignedIn ? 'list' : 'cart'} onClick={handleAddToCart} />
             </div>
           </td>
       </tr>

@@ -10,22 +10,26 @@ it.
 import { FunctionComponent } from 'preact';
 
 import CartIcon from '../../icons/cart.svg';
+import ListIcon from '../../icons/shoppinglist.svg';
 
 export interface AddToCartButtonProps {
+  variant?: 'cart' | 'list',
   onClick: (e: MouseEvent) => void;
 }
 
 export const AddToCartButton: FunctionComponent<AddToCartButtonProps> = ({
+  variant = 'cart',
   onClick,
 }: AddToCartButtonProps) => {
+  const Icon = variant === 'list' ? ListIcon : CartIcon;
   return (
     <div className="ds-sdk-add-to-cart-button">
       <button
         className="flex items-center justify-center text-blue text-sm h-[32px] p-sm hover:border-gray-400"
         onClick={onClick}
-        aria-label="Add to cart"
+        aria-label={variant === 'list' ? 'Add to shopping list' : 'Add to cart'}
       >
-        <CartIcon className="w-[20px]" />
+        <Icon className="w-[20px]" />
       </button>
     </div>
   );

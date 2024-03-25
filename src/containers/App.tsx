@@ -44,33 +44,35 @@ export const App: FunctionComponent = () => {
   return (
     <div className="ds-widgets bg-body py-2">
       {renderFilterView ? (
-        <div className="flex">
-          <div className="flex flex-col">
-            <SelectedFilters hideClearAll={true} direction="vertical"/>
-            <CategoryFilters
-              loading={productsCtx.loading}
-              pageLoading={productsCtx.pageLoading}
-              facets={productsCtx.facets}
-              totalCount={productsCtx.totalCount}
-              categoryName={productsCtx.categoryName ?? ''}
-              phrase={productsCtx.variables.phrase ?? ''}
-              showFilters={showFilters}
-              setShowFilters={setShowFilters}
-              filterCount={searchCtx.filterCount}
-            />
+        <div className="flex gap-8">
+          <div className="ds-widgets_filters w-[21%]">
+            <div className="flex flex-col bg-gray-200 rounded">
+              <SelectedFilters direction="vertical"/>
+              <CategoryFilters
+                loading={productsCtx.loading}
+                pageLoading={productsCtx.pageLoading}
+                facets={productsCtx.facets}
+                totalCount={productsCtx.totalCount}
+                categoryName={productsCtx.categoryName ?? ''}
+                phrase={productsCtx.variables.phrase ?? ''}
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
+                filterCount={searchCtx.filterCount}
+              />
+            </div>
           </div>
-        <div
-          className={`ds-widgets_results flex flex-col items-center w-full h-full`}
-        >
-          {!!headerViews.length && (
-            <ProductsHeader
-              facets={productsCtx.facets}
-              totalCount={productsCtx.totalCount}
-              screenSize={screenSize}
-            />
-          )}
-          <ProductsContainer showFilters={showFilters}/>
-        </div>
+          <div
+            className={`ds-widgets_results flex flex-col items-center w-full h-full`}
+          >
+            {!!headerViews.length && (
+              <ProductsHeader
+                facets={productsCtx.facets}
+                totalCount={productsCtx.totalCount}
+                screenSize={screenSize}
+              />
+            )}
+            <ProductsContainer showFilters={showFilters}/>
+          </div>
       </div>
       ) : (
       <div className="flex flex-col">
