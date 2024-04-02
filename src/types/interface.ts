@@ -51,7 +51,6 @@ export interface StoreDetailsConfig {
   optimizeImages?: boolean;
   imageBaseWidth?: number;
   isSignedIn?: boolean;
-  resolveMediaUrl?: (url: string) => string;
   route?: RedirectRouteFunc; // optional product redirect func prop
   resolveCartId?: () => Promise<string | undefined>;
   refreshCart?: () => void;

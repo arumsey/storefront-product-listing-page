@@ -77,7 +77,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
       imageCarousel,
       listView,
       isSignedIn,
-      resolveMediaUrl = (url) => url },
+    },
   } = useStore();
 
   const { screenSize } = useSensor();
@@ -108,7 +108,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
         productView.images ?? [],
         imageCarousel ? 3 : 1, // number of images to display in carousel
         product.image?.url ?? undefined
-      )).map(resolveMediaUrl);
+      ));
 
   let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
@@ -118,10 +118,9 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   }
 
-  let productThumbnailUrl = getImageUrl(product.thumbnail);
+  const productThumbnailUrl = getImageUrl(product.thumbnail);
   let optimizedThumbnailArray: { src: string; srcset: any }[] = [];
   if (productThumbnailUrl) {
-    productThumbnailUrl = resolveMediaUrl(productThumbnailUrl);
     if (optimizeImages) {
       optimizedThumbnailArray = generateOptimizedImages(
         [productThumbnailUrl],
