@@ -33,7 +33,7 @@ export const ProductsContainer: FunctionComponent<Props> = ({
   const productsCtx = useProducts();
   const { screenSize } = useSensor();
   const {
-    config: { listView },
+    config: { listView, currentCategoryUrlPath, currentCategoryId },
   } = useStore();
 
   const {
@@ -58,6 +58,7 @@ export const ProductsContainer: FunctionComponent<Props> = ({
   }, []);
 
   const productItemArray = Array.from<string>({ length: 8 });
+  const isCategory = currentCategoryUrlPath || currentCategoryId;
 
   const goToPage = (page: number | string) => {
     if (typeof page === 'number') {
@@ -106,6 +107,11 @@ export const ProductsContainer: FunctionComponent<Props> = ({
   }
 
   if (!totalCount) {
+    if (isCategory) {
+      import(/* webpackIgnore: true */ '/scripts/scripts.js').then(({ renderErrorPage }) => {
+        renderErrorPage('404');
+      });
+    }
     return (
       <div className="ds-sdk-no-results__page mx-auto max-w-8xl py-12 px-4 sm:px-6 lg:px-8">
         <Alert
