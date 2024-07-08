@@ -10,8 +10,6 @@ it.
 import { FunctionComponent } from 'preact';
 import { useState } from 'preact/hooks';
 
-import '../ProductItem/ProductItem.css';
-
 import { useCart, useProducts, useSensor, useStore } from '../../context';
 import NoImage from '../../icons/NoImage.svg';
 import {
@@ -24,9 +22,11 @@ import { SEARCH_UNIT_ID } from '../../utils/constants';
 import {
   generateOptimizedImages,
   getProductImageURLs,
+  getImageUrl,
 } from '../../utils/getProductImage';
 import { htmlStringDecode } from '../../utils/htmlStringDecode';
 import { AddToCartButton } from '../AddToCartButton';
+import { Image } from '../Image';
 import { ImageCarousel } from '../ImageCarousel';
 import { SwatchButtonGroup } from '../SwatchButtonGroup';
 import ProductPrice from './ProductPrice';
@@ -58,7 +58,9 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   setError,
   addToCart,
 }: ProductProps) => {
+
   const { product, productView } = item;
+
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [selectedSwatch, setSelectedSwatch] = useState('');
   const [imagesFromRefinedProduct, setImagesFromRefinedProduct] = useState<
@@ -69,7 +71,13 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const { addToCartGraphQL, refreshCart } = useCart();
   const { viewType } = useProducts();
   const {
-    config: { optimizeImages, imageBaseWidth, imageCarousel, listview },
+    config: {
+      optimizeImages,
+      imageBaseWidth,
+      imageCarousel,
+      listView,
+      isSignedIn,
+    },
   } = useStore();
 
   const { screenSize } = useSensor();
@@ -91,19 +99,18 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   };
 
   const isSelected = (id: string) => {
-    const selected = selectedSwatch ? selectedSwatch === id : false;
-    return selected;
+    return selectedSwatch ? selectedSwatch === id : false;
   };
 
-  const productImageArray = imagesFromRefinedProduct
-    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1)
+  const productImageArray: string[] = (imagesFromRefinedProduct
+    ? getProductImageURLs(imagesFromRefinedProduct ?? [], imageCarousel ? 3 : 1, undefined)
     : getProductImageURLs(
         productView.images ?? [],
         imageCarousel ? 3 : 1, // number of images to display in carousel
         product.image?.url ?? undefined
-      );
-  let optimizedImageArray: { src: string; srcset: any }[] = [];
+      ));
 
+  let optimizedImageArray: { src: string; srcset: any }[] = [];
   if (optimizeImages) {
     optimizedImageArray = generateOptimizedImages(
       productImageArray,
@@ -111,15 +118,17 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     );
   }
 
-  // will have to figure out discount logic for amount_off and percent_off still
-  const discount: boolean = refinedProduct
-    ? refinedProduct.refineProduct?.priceRange?.minimum?.regular?.amount
-        ?.value >
-      refinedProduct.refineProduct?.priceRange?.minimum?.final?.amount?.value
-    : product?.price_range?.minimum_price?.regular_price?.value >
-        product?.price_range?.minimum_price?.final_price?.value ||
-      productView?.price?.regular?.amount?.value >
-        productView?.price?.final?.amount?.value;
+  const productThumbnailUrl = getImageUrl(product.thumbnail);
+  let optimizedThumbnailArray: { src: string; srcset: any }[] = [];
+  if (productThumbnailUrl) {
+    if (optimizeImages) {
+      optimizedThumbnailArray = generateOptimizedImages(
+        [productThumbnailUrl],
+        imageBaseWidth ?? 50
+      );
+    }
+  }
+
   const isSimple = product?.__typename === 'SimpleProduct';
   const isComplexProductView = productView?.__typename === 'ComplexProductView';
   const isBundle = product?.__typename === 'BundleProduct';
@@ -128,15 +137,23 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
   const isConfigurable = product?.__typename === 'ConfigurableProduct';
 
   const onProductClick = () => {
-    window.magentoStorefrontEvents?.publish.searchProductClick(
-      SEARCH_UNIT_ID,
-      product?.sku
-    );
+    window.adobeDataLayer.push((dl: any) => {
+      dl.push({
+        event: 'search-product-click',
+        eventInfo: {
+          ...dl.getState(),
+          sku: product?.sku,
+          searchUnitId: SEARCH_UNIT_ID,
+        },
+      });
+    });
   };
 
   const productUrl = setRoute
     ? setRoute({ sku: productView?.sku, urlKey: productView?.urlKey })
     : product?.canonical_url;
+
+  const productSize = productView?.attributes?.find((attr) => attr.name === 'size');
 
   const handleAddToCart = async () => {
     setError(false);
@@ -165,121 +182,71 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
     }
   };
 
-  if (listview && viewType === 'listview') {
+  if (listView && viewType === 'listview') {
     return (
-      <>
-        <div className="grid-container">
-          <div
-            className={`product-image ds-sdk-product-item__image relative rounded-md overflow-hidden}`}
-          >
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              {/* Image */}
-              {productImageArray.length ? (
-                <ImageCarousel
-                  images={
-                    optimizedImageArray.length
-                      ? optimizedImageArray
-                      : productImageArray
-                  }
-                  productName={product.name}
-                  carouselIndex={carouselIndex}
-                  setCarouselIndex={setCarouselIndex}
-                />
-              ) : (
-                <NoImage
-                  className={`max-h-[250px] max-w-[200px] pr-5 m-auto object-cover object-center lg:w-full`}
-                />
-              )}
-            </a>
-          </div>
-          <div className="product-details">
-            <div className="flex flex-col w-1/3">
-              {/* Product name */}
+      <tr>
+          <td>
+            <div className="flex flex-row gap-[10px] items-center">
               <a
                 href={productUrl as string}
                 onClick={onProductClick}
-                className="!text-primary hover:no-underline hover:text-primary"
+                className="!text-primary hover:no-underline hover:text-primary w-[50px]"
+                aria-label={product.name}
               >
-                <div className="ds-sdk-product-item__product-name mt-xs text-sm text-primary">
-                  {product.name !== null && htmlStringDecode(product.name)}
-                </div>
-                <div className="ds-sdk-product-item__product-sku mt-xs text-sm text-primary">
-                  SKU:
-                  {product.sku !== null && htmlStringDecode(product.sku)}
-                </div>
-              </a>
-
-              {/* Swatch */}
-              <div className="ds-sdk-product-item__product-swatch flex flex-row mt-sm text-sm text-primary pb-6">
-                {productView?.options?.map(
-                  (swatches) =>
-                    swatches.id === 'color' && (
-                      <SwatchButtonGroup
-                        key={productView?.sku}
-                        isSelected={isSelected}
-                        swatches={swatches.values ?? []}
-                        showMore={onProductClick}
-                        productUrl={productUrl as string}
-                        onClick={handleSelection}
-                        sku={productView?.sku}
-                      />
-                    )
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="product-price">
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              <ProductPrice
-                item={refinedProduct ?? item}
-                isBundle={isBundle}
-                isGrouped={isGrouped}
-                isGiftCard={isGiftCard}
-                isConfigurable={isConfigurable}
-                isComplexProductView={isComplexProductView}
-                discount={discount}
-                currencySymbol={currencySymbol}
-                currencyRate={currencyRate}
-              />
-            </a>
-          </div>
-          <div className="product-description text-sm text-primary mt-xs">
-            <a
-              href={productUrl as string}
-              onClick={onProductClick}
-              className="!text-primary hover:no-underline hover:text-primary"
-            >
-              {product.short_description?.html ? (
-                <>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: product.short_description.html,
-                    }}
+                {/* Thumbnail */}
+                {productThumbnailUrl ? (
+                  <Image
+                    image={
+                    optimizedThumbnailArray.length
+                      ? optimizedThumbnailArray[0]
+                      : productThumbnailUrl}
+                    alt={product.name}
+                    size={imageBaseWidth}
                   />
-                </>
-              ) : (
-                <span />
-              )}
-            </a>
-          </div>
-
-          {/* TO BE ADDED LATER */}
-          <div className="product-ratings" />
-          <div className="product-add-to-cart">
-            <div className="pb-4 h-[38px] w-96">
-              <AddToCartButton onClick={handleAddToCart} />
+                ) : (
+                  <NoImage
+                    className={`max-h-[250px] max-w-[200px] pr-5 m-auto object-cover object-center lg:w-full`}
+                  />
+                )}
+              </a>
+              <a
+                href={productUrl as string}
+                onClick={onProductClick}
+                className="text-sm text-blue-700 no-underline hover:no-underline text-wrap"
+              >
+                {productView.name !== null && htmlStringDecode(productView.name)}
+              </a>
             </div>
-          </div>
-        </div>
-      </>
+          </td>
+          <td>
+            <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
+              {productSize && htmlStringDecode(productSize.value)}
+            </div>
+          </td>
+          <td>
+              <div className="ds-sdk-product-item__product-sku mt-xs text-sm">
+                {productView.sku !== null && htmlStringDecode(productView.sku)}
+              </div>
+          </td>
+          <td>
+            <ProductPrice
+              item={refinedProduct ?? item}
+              isBundle={isBundle}
+              isGrouped={isGrouped}
+              isGiftCard={isGiftCard}
+              isConfigurable={isConfigurable}
+              isComplexProductView={isComplexProductView}
+              discount={false}
+              currencySymbol={currencySymbol}
+              currencyRate={currencyRate}
+            />
+          </td>
+          <td>
+            <div className="w-[50px] h-[38px]">
+              <AddToCartButton variant={isSignedIn ? 'list' : 'cart'} onClick={handleAddToCart} />
+            </div>
+          </td>
+      </tr>
     );
   }
 
@@ -328,7 +295,7 @@ export const ProductItem: FunctionComponent<ProductProps> = ({
                 isGiftCard={isGiftCard}
                 isConfigurable={isConfigurable}
                 isComplexProductView={isComplexProductView}
-                discount={discount}
+                discount={false}
                 currencySymbol={currencySymbol}
                 currencyRate={currencyRate}
               />

@@ -27,7 +27,7 @@ import { getValueFromUrl, handleUrlSort } from '../utils/handleUrlFilters';
 import {
   defaultSortOptions,
   generateGQLSortInput,
-  getSortOptionsfromMetadata,
+  getSortOptionsFromMetadata,
 } from '../utils/sort';
 
 interface Props {
@@ -47,6 +47,7 @@ export const ProductsHeader: FunctionComponent<Props> = ({
 }) => {
   const searchCtx = useSearch();
   const storeCtx = useStore();
+  const { config: storeConfig } = storeCtx || {};
   const attributeMetadata = useAttributeMetadata();
   const productsCtx = useProducts();
   const translation = useTranslation();
@@ -58,22 +59,24 @@ export const ProductsHeader: FunctionComponent<Props> = ({
 
   const getSortOptions = useCallback(() => {
     setSortOptions(
-      getSortOptionsfromMetadata(
+      getSortOptionsFromMetadata(
         translation,
         attributeMetadata?.sortable,
-        storeCtx?.config?.displayOutOfStock,
-        storeCtx?.config?.currentCategoryUrlPath
+        storeConfig?.displayOutOfStock,
+        storeConfig?.currentCategoryUrlPath,
+        storeConfig?.currentCategoryId
       )
     );
-  }, [storeCtx, translation, attributeMetadata]);
+  }, [storeConfig, translation, attributeMetadata]);
 
   useEffect(() => {
     getSortOptions();
   }, [getSortOptions]);
 
-  const defaultSortOption = storeCtx.config?.currentCategoryUrlPath
+  const defaultSortOption = storeConfig?.currentCategoryUrlPath || storeConfig?.currentCategoryId
     ? 'position_ASC'
     : 'relevance_DESC';
+
   const sortFromUrl = getValueFromUrl('product_list_order');
   const sortByDefault = sortFromUrl ? sortFromUrl : defaultSortOption;
   const [sortBy, setSortBy] = useState<string>(sortByDefault);
@@ -100,7 +103,7 @@ export const ProductsHeader: FunctionComponent<Props> = ({
                   />
                 </div>
               )
-            : storeCtx.config.displaySearchBox && (
+            : storeConfig?.headerViews.includes('search') && (
                 <SearchBar
                   phrase={searchCtx.phrase}
                   onKeyPress={(e: any) => {
@@ -115,13 +118,14 @@ export const ProductsHeader: FunctionComponent<Props> = ({
         </div>
         {totalCount > 0 && (
           <>
-            {storeCtx?.config?.listview && <ViewSwitcher />}
-
-            <SortDropdown
-              sortOptions={sortOptions}
-              value={sortBy}
-              onChange={onSortChange}
-            />
+            {storeConfig?.headerViews.includes('switch') && <ViewSwitcher />}
+            {storeConfig?.headerViews.includes('sort') &&
+              <SortDropdown
+                sortOptions={sortOptions}
+                value={sortBy}
+                onChange={onSortChange}
+              />
+            }
           </>
         )}
       </div>

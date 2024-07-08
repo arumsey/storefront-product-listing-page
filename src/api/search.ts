@@ -12,6 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { updateSearchInputCtx, updateSearchResultsCtx } from '../context';
 import {
   AttributeMetadataResponse,
+  CategoriesQuery,
+  CategoriesResponse,
   ClientProps,
   MagentoHeaders,
   ProductSearchQuery,
@@ -22,6 +24,8 @@ import {
 import { SEARCH_UNIT_ID } from '../utils/constants';
 import {
   ATTRIBUTE_METADATA_QUERY,
+  CATEGORIES_QUERY,
+  CATEGORY_QUERY,
   PRODUCT_SEARCH_QUERY,
   REFINE_PRODUCT_QUERY,
 } from './queries';
@@ -39,7 +43,7 @@ const getHeaders = (headers: MagentoHeaders) => {
   };
 };
 
-const getProductSearch = async ({
+const fetchProductSearch = async ({
   environmentId,
   websiteCode,
   storeCode,
@@ -55,15 +59,18 @@ const getProductSearch = async ({
   sort = [],
   context,
   categorySearch = false,
+  categoryId,
 }: ProductSearchQuery & ClientProps): Promise<
   ProductSearchResponse['data']
 > => {
+
   const variables = {
     phrase,
     pageSize,
     currentPage,
-    filter,
+    filter: [...filter],
     sort,
+    categoryId,
     context,
   };
 
@@ -113,22 +120,19 @@ const getProductSearch = async ({
     sort
   );
 
-  const magentoStorefrontEvtPublish = window.magentoStorefrontEvents?.publish;
-
-  magentoStorefrontEvtPublish?.searchRequestSent &&
-    magentoStorefrontEvtPublish.searchRequestSent(SEARCH_UNIT_ID);
   // ======  end of data collection =====
 
+  const query = categorySearch && categoryId ? CATEGORY_QUERY : PRODUCT_SEARCH_QUERY;
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      query: PRODUCT_SEARCH_QUERY,
+      query: query.replace(/(?:\r\n|\r|\n|\t|[\s]{4})/g, ' ').replace(/\s\s+/g, ' '),
       variables: { ...variables },
     }),
   });
-
   const results = await response.json();
+
   // ======  initialize data collection =====
   updateSearchResultsCtx(
     SEARCH_UNIT_ID,
@@ -136,22 +140,26 @@ const getProductSearch = async ({
     results?.data?.productSearch
   );
 
-  magentoStorefrontEvtPublish?.searchResponseReceived &&
-    magentoStorefrontEvtPublish.searchResponseReceived(SEARCH_UNIT_ID);
+  window.adobeDataLayer.push((dl : any) => {
+    dl.push({ event: 'search-response-received', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+  });
 
-  if (categorySearch) {
-    magentoStorefrontEvtPublish?.categoryResultsView &&
-      magentoStorefrontEvtPublish.categoryResultsView(SEARCH_UNIT_ID);
+  if (categorySearch && categoryId) {
+    window.adobeDataLayer.push((dl : any) => {
+      dl.push({ categoryContext: results?.data?.categories?.[0] });
+      dl.push({ event: 'category-results-view', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+    });
   } else {
-    magentoStorefrontEvtPublish?.searchResultsView &&
-      magentoStorefrontEvtPublish.searchResultsView(SEARCH_UNIT_ID);
+    window.adobeDataLayer.push((dl : any) => {
+      dl.push({ event: 'search-results-view', eventInfo: { ...dl.getState(), searchUnitId: SEARCH_UNIT_ID } })
+    });
   }
   // ======  end of data collection =====
 
   return results?.data;
 };
 
-const getAttributeMetadata = async ({
+const fetchAttributeMetadata = async ({
   environmentId,
   websiteCode,
   storeCode,
@@ -175,6 +183,47 @@ const getAttributeMetadata = async ({
     headers,
     body: JSON.stringify({
       query: ATTRIBUTE_METADATA_QUERY,
+    }),
+  });
+  const results = await response.json();
+  return results?.data;
+};
+
+const fetchCategories = async ({
+  environmentId,
+  websiteCode,
+  storeCode,
+  storeViewCode,
+  apiKey,
+  apiUrl,
+  xRequestId = uuidv4(),
+  ids,
+  roles,
+  subtree
+}: CategoriesQuery & ClientProps): Promise<CategoriesResponse['data']> => {
+
+  const headers = getHeaders({
+    environmentId,
+    websiteCode,
+    storeCode,
+    storeViewCode,
+    apiKey,
+    xRequestId,
+    customerGroup: '',
+  });
+
+  const variables = {
+    ids,
+    roles,
+    subtree,
+  };
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      query: CATEGORIES_QUERY,
+      variables: { ...variables }
     }),
   });
   const results = await response.json();
@@ -220,4 +269,4 @@ const refineProductSearch = async ({
   return results?.data;
 };
 
-export { getAttributeMetadata, getProductSearch, refineProductSearch };
+export { fetchAttributeMetadata, fetchProductSearch, refineProductSearch, fetchCategories };

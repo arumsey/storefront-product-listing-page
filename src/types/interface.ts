@@ -29,6 +29,7 @@ export interface ClientProps {
 }
 
 export interface StoreDetailsConfig {
+  searchQuery?: string; // 'q' default search query param if not provided.
   allowAllProducts?: string | boolean;
   perPageConfig?: { pageSizeOptions?: string; defaultPageSizeOption?: string };
   minQueryLength?: string | number; // string if used on magento, number if used on data-service-graphql
@@ -36,16 +37,21 @@ export interface StoreDetailsConfig {
   currencySymbol?: string;
   currencyRate?: string;
   currentCategoryUrlPath?: string;
+  currentCategoryId?: string;
   categoryName?: string;
+  groupConfig?: { groupBy: string; size: number; ignore: string[]; };
+  headerViews: Array<'search' | 'switch' | 'sort'>;
   displaySearchBox?: boolean;
   displayOutOfStock?: string | boolean; // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
   displayMode?: string;
+  listView?: boolean;
   locale?: string;
   priceSlider?: boolean;
   imageCarousel?: boolean;
-  listview?: boolean;
   optimizeImages?: boolean;
   imageBaseWidth?: number;
+  isSignedIn?: boolean;
+  route?: RedirectRouteFunc; // optional product redirect func prop
   resolveCartId?: () => Promise<string | undefined>;
   refreshCart?: () => void;
   addToCart?: (
@@ -53,6 +59,7 @@ export interface StoreDetailsConfig {
     options: [],
     quantity: number
   ) => Promise<void | undefined>;
+  onCategoryChange?: (category: Category) => void;
 }
 
 // Types
@@ -91,6 +98,16 @@ export interface ProductSearchQuery {
   context?: QueryContextInput;
   data?: QueryData;
   categorySearch?: boolean;
+  categoryId?: string;
+}
+
+export interface CategoriesQuery {
+  ids: string[];
+  roles?: string[];
+  subtree?: {
+    startLevel: number;
+    depth: number;
+  }
 }
 
 export interface RefineProductQuery {
@@ -167,73 +184,53 @@ export interface AttributeMetadataResponse {
   };
 }
 
+export interface CategoriesResponse {
+  data: {
+    categories: Category[];
+  };
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  path: string;
+  urlPath: string;
+  children: string[];
+}
+
 export interface Product {
   product: {
     __typename: string;
-    id: number;
-    uid: string;
     name: string;
     sku: string;
-    description: null | ComplexTextValue;
-    short_description: null | ComplexTextValue;
-    attribute_set_id: null | number;
-    meta_title: null | string;
-    meta_keyword: null | string;
-    meta_description: null | string;
+    canonical_url: null | string;
     image: null | ProductMedia;
     small_image: null | ProductMedia;
     thumbnail: null | ProductMedia;
-    new_from_date: null | string;
-    new_to_date: null | string;
-    created_at: null | string;
-    updated_at: null | string;
     price_range: {
       minimum_price: ProductPrice;
       maximum_price: ProductPrice;
     };
-    gift_message_available: null | string;
-    canonical_url: null | string;
-    media_gallery: null | ProductMedia;
-    custom_attributes: null | CustomAttribute;
-    add_to_cart_allowed: null | boolean;
   };
   productView: {
     __typename: string;
     id: number;
-    uid: string;
     name: string;
     sku: string;
-    description: null | ComplexTextValue;
-    short_description: null | ComplexTextValue;
-    attribute_set_id: null | number;
-    meta_title: null | string;
-    meta_keyword: null | string;
-    meta_description: null | string;
-    images: null | ProductViewMedia[];
-    new_from_date: null | string;
-    new_to_date: null | string;
-    created_at: null | string;
-    updated_at: null | string;
-    price: {
-      final: ProductViewPrice;
-      regular: ProductViewPrice;
-    };
-    priceRange: {
-      minimum: {
-        final: ProductViewPrice;
-        regular: ProductViewPrice;
-      };
-      maximum: {
-        final: ProductViewPrice;
-        regular: ProductViewPrice;
-      };
-    };
-    gift_message_available: null | string;
     url: null | string;
     urlKey: null | string;
-    media_gallery: null | ProductViewMedia;
-    custom_attributes: null | CustomAttribute;
-    add_to_cart_allowed: null | boolean;
+    description: null | ComplexTextValue;
+    shortDescription: null | ComplexTextValue;
+    attributes: Array<{
+      label: string;
+      name: string;
+      value: string;
+    }> | null;
+    images: null | ProductViewMedia[];
+    price: {
+      regular: ProductViewPrice;
+      final: ProductViewPrice;
+    };
     options:
       | null
       | {
@@ -244,6 +241,11 @@ export interface Product {
   };
   highlights: Array<Highlights>;
 }
+
+export type GroupedProducts = Record<string, {
+  total_count: null | number;
+  items: Product[];
+}>;
 
 export interface RefinedProduct {
   refineProduct: {
@@ -309,7 +311,6 @@ export interface ProductPrice {
 }
 
 export interface ProductViewPrice {
-  adjustments: null | { amount: number; code: string };
   amount: Money;
 }
 
@@ -362,24 +363,25 @@ export interface Facet {
   buckets: Array<RangeBucket | ScalarBucket | StatsBucket | CategoryView>;
 }
 
-export interface RangeBucket {
-  __typename: 'RangeBucket';
+interface AnyBucket {
   title: string;
+}
+
+export interface RangeBucket extends AnyBucket {
+  __typename: 'RangeBucket';
   from: number;
   to: number;
   count: number;
 }
 
-export interface ScalarBucket {
+export interface ScalarBucket extends AnyBucket {
   __typename: 'ScalarBucket';
-  title: string;
   id?: string;
   count: number;
 }
 
-export interface StatsBucket {
+export interface StatsBucket extends AnyBucket {
   __typename: 'StatsBucket';
-  title: string;
   min: number;
   max: number;
 }

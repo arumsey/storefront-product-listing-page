@@ -80,5 +80,6 @@ module.exports = {
     API_KEY: true,
     SANDBOX_KEY: true,
     TEST_URL: true,
+    MEDIA_HOST: true,
   },
 };

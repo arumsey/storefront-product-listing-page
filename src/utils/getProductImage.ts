@@ -7,35 +7,42 @@ accordance with the terms of the Adobe license agreement accompanying
 it.
 */
 
-import { ProductViewMedia } from '../types/interface';
+import { ProductMedia, ProductViewMedia } from '../types/interface';
+import { isDefined } from "./isDefined";
+
+const removeProtocol = (url?: string | null): string | undefined => {
+  return url?.replace(/^https?:/, '').replace(/^\/\//, '');
+}
+
+const getImageUrl = (
+  image: ProductMedia | ProductViewMedia | null,
+): string | undefined => {
+  if (!image) {
+    return undefined;
+  }
+  const protocol = new URL(window.location.href).protocol;
+  const imageUrl = removeProtocol(image.url);
+  return imageUrl ? `${protocol}//${imageUrl}` : undefined;
+};
+
 
 const getProductImageURLs = (
   images: ProductViewMedia[],
   amount: number = 3,
   topImageUrl?: string
 ): string[] => {
-  const imageUrlArray: Array<string> = [];
-  const url = new URL(window.location.href);
-  const protocol = url.protocol;
-
-  // const topImageUrl = "http://master-7rqtwti-wdxwuaerh4gbm.eu-4.magentosite.cloud/media/catalog/product/3/1/31t0a-sopll._ac_.jpg";
-  for (const image of images) {
-    const imageUrl = image.url?.replace(/^https?:\/\//, '');
-    if (imageUrl) {
-      imageUrlArray.push(`${protocol}//${imageUrl}`);
-    }
-  }
+  // map images to full URLs
+  const imageUrlArray: string[] = images
+    .map((image) => getImageUrl(image))
+    .filter((url): url is string => isDefined<string>(url));
 
   if (topImageUrl) {
-    const topImageUrlFormatted = `${protocol}//${topImageUrl.replace(
-      /^https?:\/\//,
-      ''
-    )}`;
+    const protocol = new URL(window.location.href).protocol;
+    const topImageUrlFormatted = `${protocol}//${removeProtocol(topImageUrl)}`;
     const index = topImageUrlFormatted.indexOf(topImageUrlFormatted);
     if (index > -1) {
       imageUrlArray.splice(index, 1);
     }
-
     imageUrlArray.unshift(topImageUrlFormatted);
   }
 
@@ -96,4 +103,4 @@ const generateOptimizedImages = (
   return imageUrlArray;
 };
 
-export { generateOptimizedImages, getProductImageURLs };
+export { generateOptimizedImages, getProductImageURLs, getImageUrl };

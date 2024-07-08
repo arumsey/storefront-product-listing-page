@@ -10,10 +10,14 @@ it.
 import { FunctionComponent } from 'preact';
 import { ChangeEvent, useState } from 'preact/compat';
 
+import './InputButtonGroup.css';
+
 import { useProducts, useTranslation } from '../../context';
 import PlusIcon from '../../icons/plus.svg';
 import { BOOLEAN_NO, BOOLEAN_YES } from '../../utils/constants';
 import { LabelledInput } from '../LabelledInput';
+import { JSXInternal } from "preact/src/jsx";
+import TargetedMouseEvent = JSXInternal.TargetedMouseEvent;
 
 export type InputButtonGroupOnChangeProps = {
   value: string;
@@ -23,7 +27,9 @@ export type InputButtonGroupOnChangeProps = {
 export type InputButtonGroupOnChange = (
   arg0: InputButtonGroupOnChangeProps
 ) => void;
+
 export type InputButtonGroupTitleSlot = (label: string) => FunctionComponent;
+
 export type Bucket = {
   title: string;
   id?: string;
@@ -33,6 +39,7 @@ export type Bucket = {
   name?: string;
   __typename: 'ScalarBucket' | 'RangeBucket' | 'CategoryView';
 };
+
 export interface InputButtonGroupProps {
   title: string;
   attribute: string;
@@ -41,9 +48,11 @@ export interface InputButtonGroupProps {
   onChange: InputButtonGroupOnChange;
   type: 'radio' | 'checkbox';
   inputGroupTitleSlot?: InputButtonGroupTitleSlot;
+  collapsible?: boolean;
 }
 
 const numberOfOptionsShown = 5;
+
 export const InputButtonGroup: FunctionComponent<InputButtonGroupProps> = ({
   title,
   attribute,
@@ -52,12 +61,13 @@ export const InputButtonGroup: FunctionComponent<InputButtonGroupProps> = ({
   onChange,
   type,
   inputGroupTitleSlot,
+  collapsible,
 }) => {
   const translation = useTranslation();
   const productsCtx = useProducts();
 
   const [showMore, setShowMore] = useState(
-    buckets.length < numberOfOptionsShown
+    buckets.length < numberOfOptionsShown || collapsible
   );
 
   const numberOfOptions = showMore ? buckets.length : numberOfOptionsShown;
@@ -68,6 +78,23 @@ export const InputButtonGroup: FunctionComponent<InputButtonGroupProps> = ({
       selected: (e?.target as HTMLInputElement)?.checked,
     });
   };
+
+  const toggleGroup = (event: TargetedMouseEvent<HTMLLabelElement>) => {
+    const label = event.currentTarget;
+    label.nextElementSibling?.classList.toggle('collapsed');
+    const input = label.closest('.ds-sdk-input');
+    input?.classList.toggle('active');
+
+    if (input?.classList.contains('active')) {
+      label.setAttribute('aria-selected', 'true');
+      label.setAttribute('aria-expanded', 'true');
+      label.nextElementSibling?.setAttribute('aria-hidden', 'false');
+    } else {
+      label.setAttribute('aria-selected', 'false');
+      label.setAttribute('aria-expanded', 'false');
+      label.nextElementSibling?.setAttribute('aria-hidden', 'true');
+    }
+  }
 
   const formatLabel = (title: string, bucket: Bucket) => {
     if (bucket.__typename === 'RangeBucket') {
@@ -112,15 +139,20 @@ export const InputButtonGroup: FunctionComponent<InputButtonGroupProps> = ({
   };
 
   return (
-    <div className="ds-sdk-input pt-md">
+    <div className="ds-sdk-input pt-sm" data-collapsible={collapsible ? 'true' : 'false'} role="presentation">
       {inputGroupTitleSlot ? (
         inputGroupTitleSlot(title)
       ) : (
-        <label className="ds-sdk-input__label text-base font-normal text-gray-900">
+        <label className={`ds-sdk-input__label text-base font-normal text-gray-900 ${collapsible && 'cursor-pointer'}`}
+               role="tab"
+               aria-selected="false"
+               aria-expanded="false"
+               onClick={toggleGroup}
+        >
           {title}
         </label>
       )}
-      <fieldset className="ds-sdk-input__options mt-md">
+      <fieldset className="ds-sdk-input__options mt-md collapsed" role="tabpanel" aria-hidden="true">
         <div className="space-y-4">
           {buckets.slice(0, numberOfOptions).map((option) => {
             const checked = isSelected(option.title);
@@ -157,7 +189,7 @@ export const InputButtonGroup: FunctionComponent<InputButtonGroupProps> = ({
           )}
         </div>
       </fieldset>
-      <div className="ds-sdk-input__border border-t mt-md border-gray-200" />
+      <div className="ds-sdk-input__border border-t mt-sm border-gray-300" />
     </div>
   );
 };

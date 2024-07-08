@@ -11,15 +11,15 @@
   --color-surface: #e6e6e6;
   --color-on-surface: #222;
 
-  --color-primary: #222;
+  --color-primary: #006bb4;
   --color-on-primary: #fff;
 
-  --color-secondary: #ff0000;
+  --color-secondary: #1B824F;
   --color-on-secondary: #fff;
 
   --color-gray-1: #f3f4f6;
-  --color-gray-2: #e5e7eb;
-  --color-gray-3: #d1d5db;
+  --color-gray-2: #eeeeee;
+  --color-gray-3: #eae6e6;
   --color-gray-4: #9ca3af;
   --color-gray-5: #6b7280;
   --color-gray-6: #4b5563;
@@ -41,6 +41,7 @@
   --font-body: sans-serif;
 
   /* Font Sizes */
+  --font-xxs: 11px;
   --font-xs: 0.75em;
   --font-sm: 0.875em;
   --font-md: 1em;

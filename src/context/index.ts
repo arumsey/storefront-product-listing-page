@@ -15,3 +15,4 @@ export * from './products';
 export * from './search';
 export * from './store';
 export * from './translation';
+export * from './categories';

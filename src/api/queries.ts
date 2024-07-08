@@ -57,15 +57,8 @@ const QUICK_SEARCH_QUERY = `
     ${Product}
 `;
 
-const PRODUCT_SEARCH_QUERY = `
-    query productSearch(
-        $phrase: String!
-        $pageSize: Int
-        $currentPage: Int = 1
-        $filter: [SearchClauseInput!]
-        $sort: [ProductSearchSortInput!]
-        $context: QueryContextInput
-    ) {
+const ProductSearchQueryFragment = `
+    fragment PRODUCT_SEARCH on Query {
         productSearch(
             phrase: $phrase
             page_size: $pageSize
@@ -96,9 +89,64 @@ const PRODUCT_SEARCH_QUERY = `
             }
         }
     }
+`;
+
+const PRODUCT_SEARCH_QUERY = `
+    query productSearch(
+        $phrase: String!
+        $pageSize: Int
+        $currentPage: Int = 1
+        $filter: [SearchClauseInput!]
+        $sort: [ProductSearchSortInput!]
+        $context: QueryContextInput
+    ) {
+        ...PRODUCT_SEARCH
+    }
     ${Product}
     ${ProductView}
     ${Facet}
+    ${ProductSearchQueryFragment}
+`;
+
+const CATEGORIES_QUERY = `
+  query categories(
+    $ids: [String!], 
+    $roles: [String!], 
+    $subtree: Subtree) {
+  categories(
+    ids: $ids,
+    roles: $roles,
+    subtree: $subtree
+  ) {
+    id
+    name
+    path
+    urlPath
+    children
+  }
+}`;
+
+const CATEGORY_QUERY = `
+    query categoryQuery(
+        $categoryId: String!
+        $phrase: String!
+        $pageSize: Int
+        $currentPage: Int = 1
+        $filter: [SearchClauseInput!]
+        $sort: [ProductSearchSortInput!]
+        $context: QueryContextInput
+    ) {
+        categories(ids: [$categoryId]) {
+            name
+            urlKey
+            urlPath
+        }
+        ...PRODUCT_SEARCH
+    }
+    ${Product}
+    ${ProductView}
+    ${Facet}
+    ${ProductSearchQueryFragment}
 `;
 
 const REFINE_PRODUCT_QUERY = `
@@ -199,4 +247,6 @@ export {
   PRODUCT_SEARCH_QUERY,
   QUICK_SEARCH_QUERY,
   REFINE_PRODUCT_QUERY,
+  CATEGORIES_QUERY,
+  CATEGORY_QUERY
 };

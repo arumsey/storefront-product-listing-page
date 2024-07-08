@@ -1,0 +1,42 @@
+
+table.grid-table {
+  display: grid;
+  border-collapse: collapse;
+  min-width: 100%;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+  align-items: center;
+  font-size: 12px;
+}
+
+.grid-table thead,
+.grid-table tbody,
+.grid-table tr {
+  display: contents;
+}
+
+.grid-table th,
+.grid-table td {
+  padding: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grid-table th {
+  background-color: #f9f9f9;
+  text-align: left;
+}
+
+.grid-table tr {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.grid-table td {
+  height: 70px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+

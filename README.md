@@ -123,6 +123,7 @@ const storeDetails = {
         displayOutOfStock: true,
         allowAllProducts: false,
         currentCategoryUrlPath?: string;
+        currentCategoryId?: string;
         categoryName: '', // name of category to display
         displaySearchBox: false, // display search box
         displayOutOfStock: '', // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
@@ -164,9 +165,12 @@ You can see the example in [dev-template.html](./dev-template.html)
 
 We use Tailwind to style/theme our components. Here's a good read up if you are keen: [Tailwind Docs](https://tailwindcss.com/docs/utility-first)
 
-In addition to this themeing, we have CSS classes where storefronts can target and customize specific components of the widget. CSS classes will be used to target specific components or elements of components for a more granular approach. In short, CSS variables can create a general theme and CSS classes can target specific elements in our widget.
+In addition to this theming, we have CSS classes where storefronts can target and customize specific components of the widget. 
+CSS classes will be used to target specific components or elements of components for a more granular approach. 
+In short, CSS variables can create a general theme and CSS classes can target specific elements in our widget.
 
-With Tailwind we do not write custom CSS. Instead, we use its utility classes that are generated at buildtime using a config we provide and scanning our markup (this way we don't have extra CSS we don't need). This is our [config file](./tailwind.config.js).
+With Tailwind we do not write custom CSS. Instead, we use its utility classes that are generated at buildtime using a config we provide and scanning our markup (this way we don't have extra CSS we don't need). 
+This is our [config file](./tailwind.config.js).
 
 So how do we use CSS variables to style our components? Great question 😄
 
@@ -193,7 +197,8 @@ Using Tailwind the following produces the exact same result:
 
 ```
 
-Looking at the config file you will notice that the CSS variable is `--color-primary` is mapped to the Tailwind CSS theme color key `primary`. this means anywhere in Tailwind you would use a Color key in a class you can now use the word `primary`.
+Looking at the config file you will notice that the CSS variable is `--color-primary` is mapped to the Tailwind CSS theme color key `primary`. 
+This means anywhere in Tailwind you would use a Color key in a class you can now use the word `primary`.
 
 You can add your own variables to [tokens.css](./src/styles/tokens.css). Furthermore, you can define your own tailwind classes using these variables in the [config file](./tailwind.config.js).
 
@@ -246,7 +251,7 @@ To extend and customize this repo, you must first be familiar with react:
 - https://react.dev/learn
 - https://preactjs.com/guide/v10/components // we use Preact, which is just a smaller bundle version of React
 
-Example Implemention - adding a button to [ProductItem](./src/components/ProductItem/ProductItem.tsx):
+Example Implementation - adding a button to [ProductItem](./src/components/ProductItem/ProductItem.tsx):
 
 ```
 export const ProductItem: FunctionComponent<ProductProps> = ({

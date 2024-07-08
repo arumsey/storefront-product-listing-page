@@ -10,21 +10,23 @@ it.
 import { createContext } from 'preact';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 
-import { getProductSearch, refineProductSearch } from '../api/search';
+import { fetchProductSearch, refineProductSearch } from '../api/search';
 import {
   Facet,
-  FacetFilter,
+  FacetFilter, GroupedProducts,
   PageSizeOption,
   Product,
-  ProductSearchQuery,
+  ProductSearchQuery, ProductSearchResponse,
   RedirectRouteFunc,
 } from '../types/interface';
+import { WithChildrenProps } from "../types/utils";
 import {
   CATEGORY_SORT_DEFAULT,
   DEFAULT_MIN_QUERY_LENGTH,
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGE_SIZE_OPTIONS,
   SEARCH_SORT_DEFAULT,
+  SONY_PRODUCT_TYPE,
 } from '../utils/constants';
 import { moveToTop } from '../utils/dom';
 import {
@@ -36,16 +38,16 @@ import { useAttributeMetadata } from './attributeMetadata';
 import { useSearch } from './search';
 import { useStore } from './store';
 import { useTranslation } from './translation';
+import { useCategories } from "./categories";
+import { getProductAttribute } from "../utils/getProductAttribute";
 
-interface WithChildrenProps {
-  children?: any;
-}
+export type ViewType = 'gridview' | 'listview' | '';
 
-const ProductsContext = createContext<{
+type ProductsContextType = {
   variables: ProductSearchQuery;
   loading: boolean;
-  items: Product[];
-  setItems: (items: Product[]) => void;
+  items: Product[] | GroupedProducts;
+  setItems: (items: Product[] | GroupedProducts) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   pageSize: number;
@@ -71,8 +73,9 @@ const ProductsContext = createContext<{
   pageLoading: boolean;
   setPageLoading: (loading: boolean) => void;
   categoryPath: string | undefined;
-  viewType: string;
-  setViewType: (viewType: string) => void;
+  categoryId: string | undefined;
+  viewType: ViewType;
+  setViewType: (viewType: ViewType) => void;
   listViewType: string;
   setListViewType: (viewType: string) => void;
   resolveCartId?: () => Promise<string | undefined>;
@@ -82,7 +85,10 @@ const ProductsContext = createContext<{
     options: [],
     quantity: number
   ) => Promise<void | undefined>;
-}>({
+  cartId?: () => Promise<string | undefined>;
+}
+
+const ProductsContext = createContext<ProductsContextType>({
   variables: {
     phrase: '',
   },
@@ -114,6 +120,7 @@ const ProductsContext = createContext<{
   pageLoading: false,
   setPageLoading: () => {},
   categoryPath: undefined,
+  categoryId: undefined,
   viewType: '',
   setViewType: () => {},
   listViewType: '',
@@ -128,12 +135,13 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const pageDefault = urlValue ? Number(urlValue) : 1;
 
   const searchCtx = useSearch();
-  const storeCtx = useStore();
+  const { config: storeConfig, ...storeCtx} = useStore();
   const attributeMetadataCtx = useAttributeMetadata();
+  const { findCategoryByPath, buildCategoryList } = useCategories();
 
   const pageSizeValue = getValueFromUrl('page_size');
   const defaultPageSizeOption =
-    Number(storeCtx?.config?.perPageConfig?.defaultPageSizeOption) ||
+    Number(storeConfig?.perPageConfig?.defaultPageSizeOption) ||
     DEFAULT_PAGE_SIZE;
   const pageSizeDefault = pageSizeValue
     ? Number(pageSizeValue)
@@ -145,33 +153,39 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(true);
-  const [items, setItems] = useState<Product[]>([]);
+  const [items, setItems] = useState<Product[] | GroupedProducts>([]);
   const [currentPage, setCurrentPage] = useState<number>(pageDefault);
   const [pageSize, setPageSize] = useState<number>(pageSizeDefault);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [facets, setFacets] = useState<Facet[]>([]);
   const [categoryName, setCategoryName] = useState<string>(
-    storeCtx?.config?.categoryName ?? ''
+    storeConfig?.categoryName ?? ''
   );
   const [pageSizeOptions, setPageSizeOptions] = useState<PageSizeOption[]>([]);
   const [currencySymbol, setCurrencySymbol] = useState<string>(
-    storeCtx?.config?.currencySymbol ?? ''
+    storeConfig?.currencySymbol ?? ''
   );
   const [currencyRate, setCurrencyRate] = useState<string>(
-    storeCtx?.config?.currencyRate ?? ''
+    storeConfig?.currencyRate ?? ''
   );
   const [minQueryLengthReached, setMinQueryLengthReached] =
     useState<boolean>(false);
   const minQueryLength = useMemo(() => {
-    return storeCtx?.config?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
-  }, [storeCtx?.config.minQueryLength]);
-  const categoryPath = storeCtx.config?.currentCategoryUrlPath;
+    return storeConfig?.minQueryLength || DEFAULT_MIN_QUERY_LENGTH;
+  }, [storeConfig.minQueryLength]);
 
-  const viewTypeFromUrl = getValueFromUrl('view_type');
-  const [viewType, setViewType] = useState<string>(
-    viewTypeFromUrl ? viewTypeFromUrl : 'gridView'
-  );
+  const categoryPath = storeConfig?.currentCategoryUrlPath;
+  let categoryUrlList: string[] = categoryPath ? [categoryPath] : [];
+  if (typeof categoryPath === 'string') {
+    const startCategory = findCategoryByPath(categoryPath);
+    if (startCategory) {
+      categoryUrlList = buildCategoryList(startCategory.id).map((cat) => cat.urlPath);
+    }
+  }
+  const categoryId = storeConfig?.currentCategoryId;
+
+  const [viewType, setViewType] = useState<ViewType>('listview');
   const [listViewType, setListViewType] = useState<string>('default');
 
   const variables = useMemo(() => {
@@ -181,7 +195,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       sort: searchCtx.sort,
       context: storeCtx.context,
       pageSize,
-      displayOutOfStock: storeCtx.config.displayOutOfStock,
+      displayOutOfStock: storeConfig?.displayOutOfStock,
       currentPage,
     };
   }, [
@@ -189,7 +203,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     searchCtx.filters,
     searchCtx.sort,
     storeCtx.context,
-    storeCtx.config.displayOutOfStock,
+    storeConfig.displayOutOfStock,
     pageSize,
     currentPage,
   ]);
@@ -198,83 +212,102 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     optionIds: string[],
     sku: string
   ) => {
-    const data = await refineProductSearch({ ...storeCtx, optionIds, sku });
-    return data;
-  };
-
-  const context = {
-    variables,
-    loading,
-    items,
-    setItems,
-    currentPage,
-    setCurrentPage,
-    pageSize,
-    setPageSize,
-    totalCount,
-    setTotalCount,
-    totalPages,
-    setTotalPages,
-    facets,
-    setFacets,
-    categoryName,
-    setCategoryName,
-    currencySymbol,
-    setCurrencySymbol,
-    currencyRate,
-    setCurrencyRate,
-    minQueryLength,
-    minQueryLengthReached,
-    setMinQueryLengthReached,
-    pageSizeOptions,
-    setRoute: storeCtx.route,
-    refineProduct: handleRefineProductSearch,
-    pageLoading,
-    setPageLoading,
-    categoryPath,
-    viewType,
-    setViewType,
-    listViewType,
-    setListViewType,
-    cartId: storeCtx.config.resolveCartId,
-    refreshCart: storeCtx.config.refreshCart,
-    resolveCartId: storeCtx.config.resolveCartId,
-    addToCart: storeCtx.config.addToCart,
+    return  await refineProductSearch({ ...storeCtx, optionIds, sku });
   };
 
   const searchProducts = async () => {
+    if (!checkMinQueryLength()) {
+      setLoading(false);
+      setPageLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       moveToTop();
-      if (checkMinQueryLength()) {
-        const filters = [...variables.filter];
 
-        handleCategorySearch(categoryPath, filters);
+      const categoryFilters = getCategorySearchFilters(categoryUrlList, categoryId);
+      const filters = [...variables.filter, ...categoryFilters];
 
-        const data = await getProductSearch({
-          ...variables,
-          ...storeCtx,
-          apiUrl: storeCtx.apiUrl,
-          filter: filters,
-          categorySearch: !!categoryPath,
-        });
-
-        setItems(data?.productSearch?.items || []);
-        setFacets(data?.productSearch?.facets || []);
-        setTotalCount(data?.productSearch?.total_count || 0);
-        setTotalPages(data?.productSearch?.page_info?.total_pages || 1);
-        handleCategoryNames(data?.productSearch?.facets || []);
-
-        getPageSizeOptions(data?.productSearch?.total_count);
-
-        paginationCheck(
-          data?.productSearch?.total_count,
-          data?.productSearch?.page_info?.total_pages
-        );
+      if (categoryUrlList.length === 1) {
+        //add default category sort
+        if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
+          variables.sort = CATEGORY_SORT_DEFAULT;
+        }
       }
-      setLoading(false);
-      setPageLoading(false);
-    } catch (error) {
+
+      const data = await fetchProductSearch({
+        ...variables,
+        ...storeCtx,
+        apiUrl: storeCtx.apiUrl,
+        filter: filters,
+        categorySearch: !!categoryPath || !!categoryId,
+      });
+
+      const { groupConfig = { groupBy: '', size: 3, ignore: []} } = storeConfig;
+      const shouldUseGrouping = !variables.phrase
+        && filters.every((facet) => facet.attribute !== groupConfig.groupBy);
+      const groupByFacet = groupConfig.groupBy
+        ? (data?.productSearch.facets || []).find((facet) => facet.attribute === groupConfig.groupBy)
+        : undefined;
+      const groupByBuckets = groupByFacet?.buckets || [];
+      const searchRequests: Array<ReturnType<typeof fetchProductSearch>> = [];
+
+      if (shouldUseGrouping && groupByFacet) {
+        // build an array of requests for every grouping filter
+        groupByBuckets.forEach((bucketItem) => {
+          if (!groupConfig.ignore.includes(bucketItem.title)) {
+            variables.pageSize = groupConfig.size;
+            searchRequests.push(fetchProductSearch({
+              ...variables,
+              ...storeCtx,
+              apiUrl: storeCtx.apiUrl,
+              filter: [...filters, {
+                attribute: groupByFacet.attribute,
+                eq: bucketItem.title,
+              }],
+              categorySearch: !!categoryPath,
+            }));
+          }
+        })
+      }
+
+      const groupData = await Promise.allSettled(searchRequests);
+      const fulfilledData = groupData
+        .filter((result): result is PromiseFulfilledResult<ProductSearchResponse['data']> => result.status === 'fulfilled')
+        .map((fulfilled) => fulfilled.value)
+
+      if (fulfilledData.length > 0) {
+        const groupedProducts = fulfilledData.reduce<GroupedProducts>((groups, data) => {
+          const groupProducts = data?.productSearch?.items || [];
+          const [sampleProduct] = groupProducts;
+          if (sampleProduct) {
+            const groupName = getProductAttribute(sampleProduct, groupConfig.groupBy)
+            groups[groupName] = {
+              total_count: data?.productSearch?.total_count || 0,
+              items: groupProducts,
+            };
+          }
+          return groups;
+        }, {});
+        setItems(groupedProducts);
+      } else {
+        setItems(data?.productSearch?.items || []);
+      }
+
+      setFacets(data?.productSearch?.facets || []);
+      setTotalCount(data?.productSearch?.total_count || 0);
+      setTotalPages(data?.productSearch?.page_info?.total_pages || 1);
+      handleCategoryNames(data?.productSearch?.facets || []);
+
+      getPageSizeOptions(data?.productSearch?.total_count);
+
+      paginationCheck(
+        data?.productSearch?.total_count,
+        data?.productSearch?.page_info?.total_pages
+      );
+
+    } finally {
       setLoading(false);
       setPageLoading(false);
     }
@@ -282,9 +315,10 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
 
   const checkMinQueryLength = () => {
     if (
-      !storeCtx.config?.currentCategoryUrlPath &&
+      !storeConfig?.currentCategoryUrlPath &&
+      !storeConfig?.currentCategoryId &&
       searchCtx.phrase.trim().length <
-        (Number(storeCtx.config.minQueryLength) || DEFAULT_MIN_QUERY_LENGTH)
+        (Number(storeConfig?.minQueryLength) || DEFAULT_MIN_QUERY_LENGTH)
     ) {
       setItems([]);
       setFacets([]);
@@ -300,7 +334,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   const getPageSizeOptions = (totalCount: number | null) => {
     const optionsArray: PageSizeOption[] = [];
     const pageSizeString =
-      storeCtx?.config?.perPageConfig?.pageSizeOptions ||
+      storeConfig?.perPageConfig?.pageSizeOptions ||
       DEFAULT_PAGE_SIZE_OPTIONS;
     const pageSizeArray = pageSizeString.split(',');
     pageSizeArray.forEach((option) => {
@@ -310,7 +344,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
       });
     });
 
-    if (storeCtx?.config?.allowAllProducts == '1') {
+    if (storeConfig?.allowAllProducts == '1') {
       // '==' is intentional for conversion
       optionsArray.push({
         label: showAllLabel,
@@ -330,23 +364,38 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     }
   };
 
-  const handleCategorySearch = (
-    categoryPath: string | undefined,
-    filters: FacetFilter[]
-  ) => {
-    if (categoryPath) {
-      //add category filter
-      const categoryFilter = {
-        attribute: 'categoryPath',
-        eq: categoryPath,
-      };
-      filters.push(categoryFilter);
-
-      //add default category sort
-      if (variables.sort.length < 1 || variables.sort === SEARCH_SORT_DEFAULT) {
-        variables.sort = CATEGORY_SORT_DEFAULT;
+  const getCategorySearchFilters = (
+    categoryPath?: string[],
+    categoryId?: string,
+    ): FacetFilter[] => {
+    const filters: FacetFilter[] = [];
+    if ((!categoryPath || !categoryPath.length) && !categoryId) {
+      return filters;
+    }
+    //add category filters
+    if (categoryPath && categoryPath.length) {
+      if (categoryPath.length === 1) {
+        filters.push({
+          attribute: 'categoryPath',
+          eq: categoryPath[0],
+        });
+      } else {
+        filters.push({
+          attribute: 'categoryPath',
+          in: categoryPath,
+        });
       }
     }
+    if (categoryId) {
+      const categoryIdFilter = {
+        attribute: 'categoryIds',
+        eq: categoryId,
+      };
+      filters.push(categoryIdFilter);
+    }
+
+    return filters;
+
   };
 
   const handleCategoryNames = (facets: Facet[]) => {
@@ -375,7 +424,7 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
   useEffect(() => {
     if (attributeMetadataCtx.filterableInSearch) {
       const filtersFromUrl = getFiltersFromUrl(
-        attributeMetadataCtx.filterableInSearch
+        [...attributeMetadataCtx.filterableInSearch, SONY_PRODUCT_TYPE]
       );
       searchCtx.setFilters(filtersFromUrl);
     }
@@ -387,16 +436,60 @@ const ProductsContextProvider = ({ children }: WithChildrenProps) => {
     }
   }, [searchCtx.phrase, searchCtx.sort, currentPage, pageSize]);
 
+  const productContext: ProductsContextType= {
+    variables,
+    loading,
+    items,
+    setItems,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalCount,
+    setTotalCount,
+    totalPages,
+    setTotalPages,
+    facets,
+    setFacets,
+    categoryName,
+    setCategoryName,
+    currencySymbol,
+    setCurrencySymbol,
+    currencyRate,
+    setCurrencyRate,
+    minQueryLength,
+    minQueryLengthReached,
+    setMinQueryLengthReached,
+    pageSizeOptions,
+    setRoute: storeConfig?.route,
+    refineProduct: handleRefineProductSearch,
+    pageLoading,
+    setPageLoading,
+    categoryPath,
+    categoryId,
+    viewType,
+    setViewType,
+    listViewType,
+    setListViewType,
+    cartId: storeConfig.resolveCartId,
+    refreshCart: storeConfig.refreshCart,
+    resolveCartId: storeConfig.resolveCartId,
+    addToCart: storeConfig.addToCart,
+  };
+
   return (
-    <ProductsContext.Provider value={context}>
+    <ProductsContext.Provider value={productContext}>
       {children}
     </ProductsContext.Provider>
   );
 };
 
+const isGroupedProducts = (value?: Product[] | GroupedProducts | null): value is GroupedProducts => {
+  return !Array.isArray(value);
+}
+
 const useProducts = () => {
-  const productsCtx = useContext(ProductsContext);
-  return productsCtx;
+  return useContext(ProductsContext);
 };
 
-export { ProductsContextProvider, useProducts };
+export { ProductsContextProvider, useProducts, isGroupedProducts };

@@ -10,7 +10,7 @@ it.
 import { FunctionComponent } from 'preact';
 import { SetStateAction, useState } from 'react';
 
-import { Image } from './Image';
+import { Image } from '../Image';
 
 export interface ImageCarouselProps {
   images: string[] | { src: string; srcset: any }[];
@@ -47,9 +47,9 @@ export const ImageCarousel: FunctionComponent<ImageCarouselProps> = ({
 
   return (
     <>
-      <div class="ds-sdk-product-image-carousel max-h-[250px] max-w-2xl m-auto">
+      <div class="ds-sdk-product-image-carousel h-[50px] w-[50px] m-auto">
         <div
-          className="flex flex-nowrap overflow-hidden relative rounded-lg w-full h-full"
+          className="flex flex-col flex-nowrap justify-around overflow-hidden relative w-full h-full"
           onTouchStart={(e) => setSwipeIndex(e.touches[0].clientX)}
           onTouchEnd={(e) => {
             const endIndex = e.changedTouches[0].clientX;

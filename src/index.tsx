@@ -11,37 +11,47 @@ import { render } from 'preact';
 
 import './styles/index.css';
 
-import { getUserViewHistory } from '../src/utils/getUserViewHistory';
 import App from './containers/App';
 import {
   AttributeMetadataProvider,
   CartProvider,
+  CategoriesProvider,
   ProductsContextProvider,
   SearchProvider,
   StoreContextProvider,
-  StoreDetailsProps,
+  StoreProps,
 } from './context/';
 import Resize from './context/displayChange';
 import Translation from './context/translation';
+import { StoreDetailsConfig } from "./types/interface";
+import { getUserViewHistory } from './utils/getUserViewHistory';
 import { validateStoreDetailsKeys } from './utils/validateStoreDetails';
 
+type OptionalHeaderViews = Omit<StoreDetailsConfig, 'headerViews'> & Pick<Partial<StoreDetailsConfig>, 'headerViews'>;
+
+type UnsafeStoreConfig = Omit<StoreProps, 'config'> & { config: OptionalHeaderViews } & Record<string, unknown>;
+
 type MountSearchPlpProps = {
-  storeDetails: StoreDetailsProps;
+  storeDetails: UnsafeStoreConfig;
   root: HTMLElement;
 };
 
 const LiveSearchPLP = ({ storeDetails, root }: MountSearchPlpProps) => {
   if (!storeDetails) {
-    throw new Error("Livesearch PLP's storeDetails prop was not provided");
+    throw new Error("LiveSearch PLP's storeDetails prop was not provided");
   }
   if (!root) {
-    throw new Error("Livesearch PLP's Root prop was not provided");
+    throw new Error("LiveSearch PLP's root prop was not provided");
   }
 
   const userViewHistory = getUserViewHistory();
 
-  const updatedStoreDetails: StoreDetailsProps = {
+  const updatedStoreDetails: UnsafeStoreConfig = {
     ...storeDetails,
+    config: {
+      headerViews: ['search', 'sort'],
+      ...storeDetails.config,
+    },
     context: {
       ...storeDetails.context,
       userViewHistory,
@@ -51,17 +61,19 @@ const LiveSearchPLP = ({ storeDetails, root }: MountSearchPlpProps) => {
   render(
     <StoreContextProvider {...validateStoreDetailsKeys(updatedStoreDetails)}>
       <AttributeMetadataProvider>
-        <SearchProvider>
-          <Resize>
-            <Translation>
-              <ProductsContextProvider>
-                <CartProvider>
-                  <App />
-                </CartProvider>
-              </ProductsContextProvider>
-            </Translation>
-          </Resize>
-        </SearchProvider>
+        <CategoriesProvider>
+          <SearchProvider>
+            <Resize>
+              <Translation>
+                <ProductsContextProvider>
+                  <CartProvider>
+                    <App />
+                  </CartProvider>
+                </ProductsContextProvider>
+              </Translation>
+            </Resize>
+          </SearchProvider>
+        </CategoriesProvider>
       </AttributeMetadataProvider>
     </StoreContextProvider>,
     root

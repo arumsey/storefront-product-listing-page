@@ -7,6 +7,7 @@ const { commonConfig, publicPaths } = require('./webpack.common.js');
 
 module.exports = merge(commonConfig, {
   mode: 'development',
+  devtool: 'source-map',
   output: {
     publicPath: publicPaths.DEV,
   },
@@ -19,7 +20,7 @@ module.exports = merge(commonConfig, {
       SANDBOX_KEY: JSON.stringify('storefront-widgets'),
     }),
     new HtmlWebpackPlugin({
-      title: 'LiveSearch PLP',
+      title: 'Sony Biotech Storefront',
       template: './dev-template.html',
     }),
     new webpack.HotModuleReplacementPlugin(),

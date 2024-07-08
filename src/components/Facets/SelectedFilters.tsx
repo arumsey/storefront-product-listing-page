@@ -7,23 +7,27 @@ accordance with the terms of the Adobe license agreement accompanying
 it.
 */
 
-import { FunctionComponent } from 'preact';
+import { Fragment, FunctionComponent } from 'preact';
 
 import { useProducts, useSearch, useTranslation } from '../../context';
 import Pill from '../Pill';
 import { formatBinaryLabel, formatRangeLabel } from './format';
 
-export const SelectedFilters: FunctionComponent = ({}) => {
+type SelectedFiltersProps = {
+  direction?: 'horizontal' | 'vertical';
+}
+
+export const SelectedFilters: FunctionComponent<SelectedFiltersProps> = ({ direction = "horizontal" }) => {
   const searchCtx = useSearch();
   const productsCtx = useProducts();
   const translation = useTranslation();
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full">
       {searchCtx.filters?.length > 0 && (
-        <div className="ds-plp-facets__pills pb-6 sm:pb-6 flex flex-wrap mt-8 justify-start">
+        <div className={`ds-plp-facets__pills pb-6 sm:pb-6 flex ${direction === 'horizontal' ? 'flex-row' : 'flex-col'} flex-wrap justify-start`}>
           {searchCtx.filters.map((filter) => (
-            <div key={filter.attribute}>
+            <Fragment key={filter.attribute}>
               {filter.in?.map((option) => (
                 <Pill
                   key={formatBinaryLabel(
@@ -55,12 +59,12 @@ export const SelectedFilters: FunctionComponent = ({}) => {
                   }}
                 />
               )}
-            </div>
+            </Fragment>
           ))}
           <div className="py-1">
             <button
-              className="ds-plp-facets__header__clear-all border-none bg-transparent hover:border-none	hover:bg-transparent
-              focus:border-none focus:bg-transparent active:border-none active:bg-transparent active:shadow-none text-sm px-4"
+              className="ds-plp-facets__header__clear-all pt-md border-none bg-transparent hover:border-none hover:bg-transparent
+              focus:border-none focus:bg-transparent active:border-none active:bg-transparent active:shadow-none text-primary text-sm px-4"
               onClick={() => searchCtx.clearFilters()}
             >
               {translation.Filter.clearAll}

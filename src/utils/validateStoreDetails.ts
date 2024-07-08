@@ -1,6 +1,6 @@
-import { StoreDetailsProps } from '../context';
+import { StoreProps } from '../context';
 
-const validStoreDetailsKeys: Array<keyof StoreDetailsProps> = [
+const validStoreDetailsKeys: Array<keyof StoreProps> = [
   'environmentId',
   'environmentType',
   'websiteCode',
@@ -10,32 +10,32 @@ const validStoreDetailsKeys: Array<keyof StoreDetailsProps> = [
   'context',
   'apiUrl',
   'apiKey',
-  'route',
-  'searchQuery',
+  'commerceUrl',
 ];
 
-export const sanitizeString = (value: any) => {
-  // just incase, https://stackoverflow.com/a/23453651
+export const sanitizeString = (value: unknown) => {
   if (typeof value === 'string') {
-    // eslint-disable-next-line no-useless-escape
-    value = value.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, '');
-    return value.trim();
+    const parsed = new DOMParser().parseFromString(`<p>${value}</p>`, 'text/html');
+    const textValue = parsed.body?.textContent || '';
+    return textValue
+      .replace(/[^a-z0-9 :/.,_-]/gim, '')
+      .trim();
   }
   return value;
 };
 
 export const validateStoreDetailsKeys = (
-  storeDetails: StoreDetailsProps
-): StoreDetailsProps => {
-  Object.keys(storeDetails).forEach((key: string) => {
-    if (!validStoreDetailsKeys.includes(key as keyof StoreDetailsProps)) {
+  storeDetails: Record<string, unknown>
+): StoreProps => {
+  Object.keys(storeDetails).forEach((key) => {
+    if (!validStoreDetailsKeys.includes(key as keyof StoreProps)) {
       // eslint-disable-next-line no-console
-      console.error(`Invalid key ${key} in StoreDetailsProps`);
+      console.error(`Invalid key ${key} in StoreProps`);
       // filter out invalid keys/value
-      delete (storeDetails as any)[key];
-      return;
+      delete storeDetails[key];
+    } else {
+      storeDetails[key] = sanitizeString(storeDetails[key]);
     }
-    (storeDetails as any)[key] = sanitizeString((storeDetails as any)[key]);
   });
-  return storeDetails;
+  return storeDetails as unknown as StoreProps;
 };

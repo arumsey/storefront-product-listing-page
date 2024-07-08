@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-  <title>Live Search PLP</title>
+  <title>Sony Biotech Storefront</title>
 
   <!-- reset css -->
 
@@ -12,6 +12,11 @@
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
+
+  <script
+          type="text/javascript"
+          src="https://unpkg.com/@adobe/adobe-client-data-layer@2.0.2/dist/adobe-client-data-layer.min.js"
+  ></script>
 
   <script
     type="text/javascript"
@@ -38,12 +43,13 @@
       font-weight: 400;
     }
 
-    .ds-widgets {
-      --color-primary: black;
-    }
-
     .ds-sdk-product-item__product-name {
       text-transform: uppercase;
+    }
+
+    .search-plp-root {
+      position: relative;
+      min-height: 100vh;
     }
   </style>
 
@@ -52,94 +58,84 @@
   <script type="text/javascript">
     const root = document.querySelector('div.search-plp-root');
     const storeDetails = {
-      environmentId: '',
-      websiteCode: '',
-      storeCode: '',
-      storeViewCode: '',
+      apiUrl: 'https://aemstage.sonybiotechnology.com/cs-graphql',
+      environmentId: '7dbfa0d8-8e6f-4abf-b932-4c2bee19d067',
+      websiteCode: 'us',
+      storeCode: 'us',
+      storeViewCode: 'us',
+      apiKey: 'b06dd0204a474eacb8afcc5e5965587c',
       config: {
-        minQueryLength: '2',
-        pageSize: 8,
+        pageSize: 10,
         perPageConfig: {
-          pageSizeOptions: '12,24,36',
-          defaultPageSizeOption: '24',
+          pageSizeOptions: '10,20,50,100',
+          defaultPageSizeOption: '10',
         },
+        minQueryLength: '0',
         currencySymbol: '$',
         currencyRate: '1',
-        displaySearchBox: true, // display search box
         displayOutOfStock: true,
         allowAllProducts: false,
-        // currentCategoryUrlPath?: '', // current category url path
+        currentCategoryUrlPath: 'reagents/flow-cytometry-reagents/anti-human-antibodies',
+        // currentCategoryId?: '', // current category id
         // categoryName: '', // name of category to display
-        // displaySearchBox: false, // display search box
+        headerViews: [],
+        groupConfig: {
+          groupBy: 'sonybt_product_type',
+          size: 3,
+          ignore: ['N/A'],
+        },
+        displaySearchBox: false, // display search box
         // displayOutOfStock: '', // "1" will return from php escapeJs and boolean is returned if called from data-service-graphql
-        // displayMode: '', // "" for search || "PAGE" for category search
+        displayMode: '', // "" for search || "PAGE" for category search
         // locale: '', //add locale for translations
         // priceSlider: false, //enable slider for price - EXPERIMENTAL, default is false
         // imageCarousel: false, //enable multiple image carousel - EXPERIMENTAL, default is false
-        // listview: false; //add listview as an option - EXPERIMENTAL, default is false
-        // optimizeImages: true, // optimize images with Fastly
-        // imageBaseWidth: 200,
+        listView: true, //add listview as an option - EXPERIMENTAL, default is false
+        optimizeImages: false, // optimize images with Fastly
+        imageBaseWidth: 50,
+        isSignedIn: false,
         // resolveCartId?: resolveCartId, // Luma specific addToCart method. Enabled with the extension
         // refreshCart?: refreshCart, // Luma specific addToCart method. Enabled with the extension
         // addToCart?: (sku, options, quantity)=>{} // custom add to cart callback function. Called on addToCart action
+        route: ({ urlKey }) => `/${urlKey}`,
+        onCategoryChange: (category) => {
+          document.title = category.name;
+        },
       },
       context: {
-        customerGroup: '',
+        customerGroup: '1',
       },
-      apiKey: '',
       environmentType: '',
       // searchQuery: 'search_query', // Optional: providing searchQuery will override 'q' query param
-      // route: ({ sku, urlKey  }) => {
-      //   const storeConfig = JSON.parse(
-      //     document
-      //       .querySelector("meta[name='store-config']")
-      //       .getAttribute('content')
-      //   );
-      //   const { storeRootUrl } = storeConfig;
-      //   const redirectUrl = storeRootUrl.split('.html')[0];
-      //   return `${redirectUrl}/${sku}`;
-      // },
-      // Will result to `http://localhost:8081/v1/MT11`
     };
 
-    const mse = window.magentoStorefrontEvents;
-
-    mse.context.setMagentoExtension({
-      magentoExtensionVersion: '1.0.0',
-    });
-    mse.context.setSearchExtension({
-      version: '2.0.3',
-    });
-    mse.context.setShopper({ shopperId: 'logged-in' });
-
-    mse.context.setPage({
-      pageType: 'plp',
-      maxXOffset: 0,
-      maxYOffset: 0,
-      minXOffset: 0,
-      minYOffset: 0,
-      ping_interval: 5,
-      pings: 1,
-    });
-
-    mse.context.setStorefrontInstance({
-      environmentId: '',
-      instanceId: 'bbbbbb',
-      environment: 'ccccccc',
-      storeUrl: '',
-      websiteId: 123456,
-      websiteCode: '',
-      storeId: 123456,
-      storeCode: '',
-      storeViewId: 123456,
-      storeViewCode: '',
-      websiteName: '',
-      storeName: '',
-      storeViewName: '',
-      baseCurrencyCode: 'USD',
-      storeViewCurrencyCode: 'USD',
-      catalogExtensionVersion: '1.0.0',
-    });
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push(
+            { 'magentoExtensionContext': { magentoExtensionVersion: '1.0.0' } },
+            { 'searchExtensionContext': { version: '2.0.3'} },
+            { 'shopperContext': { shopperId: 'logged-in' } },
+            { 'pageContext': { pageType: 'plp', maxXOffset: 0, maxYOffset: 0, minXOffset: 0, minYOffset: 0, ping_interval: 5, pings: 1 } },
+            {
+              'storefrontInstanceContext': {
+                environmentId: '',
+                instanceId: 'bbbbbb',
+                environment: 'ccccccc',
+                storeUrl: '',
+                websiteId: 123456,
+                websiteCode: '',
+                storeId: 123456,
+                storeCode: '',
+                storeViewId: 123456,
+                storeViewCode: '',
+                websiteName: '',
+                storeName: '',
+                storeViewName: '',
+                baseCurrencyCode: 'USD',
+                storeViewCurrencyCode: 'USD',
+                catalogExtensionVersion: '1.0.0',
+              }
+            }
+    );
 
     setTimeout(async () => {
       while (typeof window.LiveSearchPLP !== 'function') {

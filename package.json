@@ -12,6 +12,7 @@
     "build:dev": "webpack --config webpack.dev.js",
     "dev": "webpack-dev-server --config webpack.dev.js",
     "tailwind:build": "npx tailwindcss  -i ./src/styles/tokens.css -o ./src/styles/index.css",
+    "start": "npm run tailwind:build && npm run dev",
     "storybook": "npx tailwindcss  -i ./src/styles/tokens.css -o ./src/styles/index.css; storybook dev -p 6006",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",

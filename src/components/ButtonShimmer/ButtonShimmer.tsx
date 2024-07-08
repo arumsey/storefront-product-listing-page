@@ -11,11 +11,15 @@ import { FunctionComponent } from 'preact';
 
 import '../ButtonShimmer/ButtonShimmer.css';
 
-export const ButtonShimmer: FunctionComponent = () => {
+type Props = {
+  variant?: 'full',
+}
+
+export const ButtonShimmer: FunctionComponent<Props> = ({ variant }) => {
   return (
     <>
-      <div className="ds-plp-facets ds-plp-facets--loading">
-        <div className="ds-plp-facets__button shimmer-animation-button" />
+      <div className="ds-plp-facets ds-plp-facets--loading w-full">
+        <div className={`ds-plp-facets__button shimmer-animation-button ${variant}`} />
       </div>
     </>
   );

@@ -12,15 +12,11 @@ import { useContext, useMemo } from 'preact/hooks';
 
 import {
   QueryContextInput,
-  RedirectRouteFunc,
   StoreDetailsConfig,
 } from '../types/interface';
+import { WithChildrenProps } from "../types/utils";
 
-interface WithChildrenProps {
-  children?: any;
-}
-
-export interface StoreDetailsProps extends WithChildrenProps {
+interface StoreProps extends WithChildrenProps {
   environmentId: string;
   environmentType: string;
   websiteCode: string;
@@ -30,11 +26,10 @@ export interface StoreDetailsProps extends WithChildrenProps {
   context?: QueryContextInput;
   apiUrl: string;
   apiKey: string;
-  route?: RedirectRouteFunc; // optional product redirect func prop
-  searchQuery?: string; // 'q' default search query param if not provided.
+  commerceUrl: string;
 }
 
-const StoreContext = createContext<StoreDetailsProps>({
+const StoreContext = createContext<StoreProps>({
   environmentId: '',
   environmentType: '',
   websiteCode: '',
@@ -42,62 +37,67 @@ const StoreContext = createContext<StoreDetailsProps>({
   storeViewCode: '',
   apiUrl: '',
   apiKey: '',
-  config: {},
+  commerceUrl: '',
+  config: {
+    headerViews: ['search', 'sort'],
+    route: undefined,
+    searchQuery: 'q',
+  },
   context: {},
-  route: undefined,
-  searchQuery: 'q',
 });
 
 const StoreContextProvider = ({
   children,
-  environmentId,
-  environmentType,
-  websiteCode,
-  storeCode,
-  storeViewCode,
-  config,
-  context,
-  apiKey,
-  route,
-  searchQuery,
-}: StoreDetailsProps) => {
-  const storeProps = useMemo(
-    () => ({
-      environmentId,
-      environmentType,
-      websiteCode,
-      storeCode,
-      storeViewCode,
-      config,
-      context: {
-        customerGroup: context?.customerGroup ?? '',
-        userViewHistory: context?.userViewHistory ?? [],
-      },
-      apiUrl: environmentType?.toLowerCase() === 'testing' ? TEST_URL : API_URL,
-      apiKey:
-        environmentType?.toLowerCase() === 'testing' && !apiKey
-          ? SANDBOX_KEY
-          : apiKey,
-      route,
-      searchQuery,
-    }),
-    [environmentId, websiteCode, storeCode, storeViewCode]
+  ...storeProps
+}: StoreProps) => {
+
+  const cleanedStoreProps: StoreProps = useMemo(
+    () => {
+
+      const {
+        environmentId,
+        environmentType,
+        websiteCode,
+        storeCode,
+        storeViewCode,
+        config,
+        context,
+        apiKey,
+        apiUrl,
+        commerceUrl,
+      } = storeProps;
+
+      return {
+        environmentId,
+        environmentType,
+        websiteCode,
+        storeCode,
+        storeViewCode,
+        config,
+        context: {
+          customerGroup: context?.customerGroup ?? '',
+          userViewHistory: context?.userViewHistory ?? [],
+        },
+        apiUrl: environmentType?.toLowerCase() === 'testing' ? TEST_URL : apiUrl || API_URL,
+        apiKey:
+          environmentType?.toLowerCase() === 'testing' && !apiKey
+            ? SANDBOX_KEY
+            : apiKey,
+        commerceUrl,
+      }
+    },
+    [storeProps]
   );
 
-  const storeContext = {
-    ...storeProps,
-  };
-
   return (
-    <StoreContext.Provider value={storeContext}>
+    <StoreContext.Provider value={{ ...cleanedStoreProps }}>
       {children}
     </StoreContext.Provider>
   );
 };
 
 const useStore = () => {
-  const storeCtx = useContext(StoreContext);
-  return storeCtx;
+  return useContext(StoreContext);
 };
 
-export { StoreContextProvider, useStore };
+export { StoreContextProvider, useStore, StoreProps };

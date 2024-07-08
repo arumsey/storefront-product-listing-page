@@ -42,8 +42,8 @@ export const ProductPrice: FunctionComponent<ProductPriceProps> = ({
 
   if ('product' in item) {
     price =
-      item?.product?.price_range?.minimum_price?.final_price ??
-      item?.product?.price_range?.minimum_price?.regular_price;
+      item?.productView?.price?.final ??
+      item?.productView?.price?.regular;
   } else {
     price =
       item?.refineProduct?.priceRange?.minimum?.final ??
@@ -126,7 +126,7 @@ export const ProductPrice: FunctionComponent<ProductPriceProps> = ({
             !isConfigurable &&
             !isComplexProductView &&
             discount && (
-              <p className="ds-sdk-product-price--discount mt-xs text-sm font-medium text-gray-900 my-auto">
+              <p className="ds-sdk-product-price--discount mt-xs text-sm text-gray-900 my-auto">
                 <span className="line-through pr-2">
                   {getProductPrice(
                     item,
@@ -154,7 +154,7 @@ export const ProductPrice: FunctionComponent<ProductPriceProps> = ({
             !isConfigurable &&
             !isComplexProductView &&
             !discount && (
-              <p className="ds-sdk-product-price--no-discount mt-xs text-sm font-medium text-gray-900 my-auto">
+              <p className="ds-sdk-product-price--no-discount mt-xs text-sm text-gray-900 my-auto">
                 {getProductPrice(
                   item,
                   currencySymbol,
@@ -174,13 +174,13 @@ export const ProductPrice: FunctionComponent<ProductPriceProps> = ({
           )}
 
           {isGrouped && (
-            <p className="ds-sdk-product-price--grouped mt-xs text-sm font-medium text-gray-900 my-auto">
+            <p className="ds-sdk-product-price--grouped mt-xs text-sm text-gray-900 my-auto">
               {getPriceFormat(item, currencySymbol, currencyRate, false)}
             </p>
           )}
 
           {isGiftCard && (
-            <p className="ds-sdk-product-price--gift-card mt-xs text-sm font-medium text-gray-900 my-auto">
+            <p className="ds-sdk-product-price--gift-card mt-xs text-sm text-gray-900 my-auto">
               {getPriceFormat(item, currencySymbol, currencyRate, true)}
             </p>
           )}

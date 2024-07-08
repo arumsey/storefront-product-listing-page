@@ -13,7 +13,7 @@ const MAJOR_VERSION = `v${pkg.version.split('.')[0]}`;
 const publicPaths = {
   DEV: `http://localhost:${PORT}/${MAJOR_VERSION}/`,
   QA: ``,
-  PROD: ``,
+  PROD: `/`,
 };
 
 const commonConfig = {
@@ -76,6 +76,13 @@ const commonConfig = {
       {
         test: /\.svg$/,
         use: ['preact-svg-loader'],
+      },
+      {
+        test: /\.(png)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'icons/commerce/[name].[hash][ext][query]'
+        }
       },
     ],
   },
